@@ -368,10 +368,11 @@
     if (seen || matchMedia('(prefers-reduced-motion: reduce)').matches) { sp.hidden = true; return; }
     const close = () => { if (sp.classList.contains('out')) return; sp.classList.add('out'); setTimeout(() => { sp.hidden = true; }, 460); };
     sp.addEventListener('pointerdown', close); addEventListener('keydown', close, { once: true });
-    setTimeout(close, 2700);
+    setTimeout(close, 3400);
   }
   function boot() {
     splash();
+    if (VMI.animateLogos) VMI.animateLogos();
     document.body.classList.toggle('touch', app.touch);
     A.volume = store.get('vol', 0.8);
     // instrument switcher

@@ -349,11 +349,12 @@
   /* =========================================================
      Quick recorder (for the library)
      ========================================================= */
-  U.quickRec = () => {
+  U.quickRec = (opts) => {
+    opts = opts || {};
     let raf = 0, t0 = 0, last = null;
     const meter = h('div', { class: 'qmeter' }, h('i'));
     const timer = h('div', { class: 'qtime' }, '0.0 s');
-    const status = h('div', { class: 'muted small' }, 'Press Record, then sing, speak, beatbox or play something into your microphone. Headphones help avoid echo.');
+    const status = h('div', { class: 'muted small' }, opts.hint || 'Press Record, then sing, speak, beatbox or play something into your microphone. Headphones help avoid echo.');
     const after = h('div', { class: 'qafter' });
     const btn = h('button', { class: 'qbtn', onclick: async () => {
       if (!ST.quick.on) {
@@ -364,6 +365,7 @@
         const sNew = await ST.quickStop('Recording ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         if (!sNew) { status.textContent = 'Nothing was captured — check that the right microphone is selected.'; return; }
         last = sNew; status.textContent = 'Saved to My Library as “' + sNew.name + '”.';
+        if (opts.after) { m.close(); opts.after(sNew); return; }
         after.append(
           h('button', { class: 'btn', onclick: () => U.previewSample(last.id) }, '▶ Listen'),
           h('button', { class: 'btn accent', onclick: () => { m.close(); VMI.slab.open(last.id); } }, '🔬 Sound Lab'),
@@ -377,7 +379,7 @@
       meter.firstChild.style.width = Math.min(100, Math.pow(ST.micLevel(), 0.5) * 100) + '%';
       if (ST.quick.on) timer.textContent = ((performance.now() - t0) / 1000).toFixed(1) + ' s';
     };
-    const m = U.modal('Record a sound', h('div', { class: 'qrec' }, status, h('div', { class: 'qrow' }, btn, h('div', { class: 'qcol' }, timer, meter)), after), {
+    const m = U.modal(opts.title || 'Record a sound', h('div', { class: 'qrec' }, status, h('div', { class: 'qrow' }, btn, h('div', { class: 'qcol' }, timer, meter)), after), {
       onclose: () => { cancelAnimationFrame(raf); if (ST.quick.on) ST.quickStop('Recording'); if (!ST.rec.on) setTimeout(() => ST.micClose(), 100); },
     });
     ST.micOpen().then(() => { loop(); }).catch((e) => { status.textContent = '⚠ ' + (e.message || 'Microphone permission was denied'); });

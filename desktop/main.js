@@ -133,13 +133,23 @@ function selfTest() {
         const loop = await VMI.loops.render(VMI.loops.byId('dl-house'), 120); out.loopRender = +(loop.ch[0].length / loop.sr).toFixed(2);
         out.keyboardKeys = VMI.KEYMAP.length;
         out.title = document.title;
-        out.modules = ['FX', 'fxui', 'slab', 'gen', 'bb'].filter((k) => !VMI[k]).join(',') || 'all loaded';
+        out.modules = ['FX', 'fxui', 'slab', 'gen', 'bb', 'mapper', 'logoMark', 'heroSign'].filter((k) => !VMI[k]).join(',') || 'all loaded';
+        out.livingLogo = document.querySelectorAll('.wm-mark').length + ' marks, sign ' + !!document.querySelector('.hero-sign svg animate');
         let t0 = performance.now();
         await VMI.gen.create({ genre: 'Hip-hop', mood: 'chill', key: 'auto', bpm: 0, len: 'full', melody: true, fx: true });
         out.generateMs = Math.round(performance.now() - t0);
         t0 = performance.now(); const song = await VMI.st.renderMix({});
         out.fullSongSeconds = +song.duration.toFixed(1); out.fullSongExportMs = Math.round(performance.now() - t0);
         const sl = VMI.slab.pitch(new Float32Array(48000).map((_, i) => Math.sin(i / 10)), 48000, 5, 'keep'); out.soundLabPitch = sl.length === 48000;
+        { // voice engines (audio worklets) inside the packaged app: 230 Hz voice-like tone
+          const sr0 = 44100, N0 = sr0, tone = new Float32Array(N0);
+          for (let i = 0; i < N0; i++) { let v = 0; for (let k = 1; k < 10; k++) v += Math.sin(2 * Math.PI * 230 * k * i / sr0) / k; tone[i] = 0.2 * v; }
+          const D = VMI.FX.defaults, hz = async (chain) => { const r = await VMI.slab.bounce([tone], sr0, chain, 0); const dd = VMI.slab.detect(r[0].subarray(9000, N0 - 2000), sr0); return dd ? +dd.hz.toFixed(1) : 0; };
+          out.pitchUp5Hz_want307 = await hz([['pitch', Object.assign(D('pitch'), { semis: 5 })]]);
+          out.pitchDown12Hz_want115 = await hz([['pitch', Object.assign(D('pitch'), { semis: -12 })]]);
+          out.autoTuneHz_want233 = await hz([['autotune', Object.assign(D('autotune'), { key: 1, scale: 'major', speed: 0 })]]);
+          out.robotVoiceHz_want233 = await hz([['synthvoice', Object.assign(D('synthvoice'), { key: 1, scale: 'major', mix: 1 })]]);
+        }
         out.fxTypes = Object.keys(VMI.FX.types).length; out.fxPresets = VMI.FX.presets.length; out.loops = VMI.loops.items.length;
         return out;
       })()`, true);

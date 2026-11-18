@@ -42,7 +42,47 @@
   /* =========================================================
      Effect types
      ========================================================= */
+  /** effects that run on the audio thread need the worklet module loaded in that context first */
+  function needWorklet(c) {
+    if (FX.workletReady(c)) return null;
+    FX.loadWorklet(c).then(() => { if (VMI.st && VMI.st.graph && VMI.st.graph.c === c) { VMI.st.graph.strips.forEach((s) => { s.fxKey = null; }); VMI.st.sync(); } }).catch(() => {});
+    const pass = c.createGain(); return { input: pass, output: pass, set() { } };
+  }
+  const SCALE = (k) => (VMI.pitch && VMI.pitch.SCALES[k]) || [0, 2, 4, 5, 7, 9, 11];
+  const CHORDS = { mono: [0], octave: [0, 12], power: [0, 7], triad: [0, 4, 7], minor: [0, 3, 7], stack: [0, 7, 12] };
+
   FX.types = {
+    pitch: {
+      name: 'Pitch shift', icon: '🎚️', desc: 'Raise or lower the pitch, keeps the timing', worklet: true,
+      params: [rng('semis', 'Semitones', -24, 24, 1, 0), rng('fine', 'Fine (cents)', -100, 100, 1, 0), rng('mix', 'Mix', 0, 1, 0.01, 1)],
+      build(c, p) {
+        const pass = needWorklet(c); if (pass) return pass;
+        const msg = (q) => ({ on: true, mode: 'shift', shift: +q.semis + q.fine / 100, speed: 0 });
+        const m = mixer(c, p.mix), n = new AudioWorkletNode(c, 'vmi-autotune', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1], processorOptions: msg(p) });
+        m.input.connect(n); n.connect(m.wet);
+        const set = (q) => { m.setMix(q.mix); n.port.postMessage(msg(q)); };
+        set(p);
+        return { input: m.input, output: m.output, set };
+      },
+    },
+    synthvoice: {
+      name: 'Voice synth', icon: '🤖', desc: 'Electric robot / talkbox voice that follows your melody', worklet: true,
+      params: [sel('key', 'Key', ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((k, i) => [i, k]), 0), sel('scale', 'Scale', [['major', 'Major'], ['minor', 'Minor'], ['pentatonic minor', 'Pentatonic minor'], ['chromatic', 'Chromatic']], 'minor'),
+        sel('chord', 'Voices', [['mono', 'Single (robot)'], ['octave', 'Octave'], ['power', 'Power (5th)'], ['triad', 'Major chord'], ['minor', 'Minor chord'], ['stack', 'Stack']], 'mono'),
+        sel('wave', 'Tone', [['saw', 'Bright (saw)'], ['square', 'Hollow (square)']], 'saw'), rng('oct', 'Octave', -2, 1, 1, 0), rng('glide', 'Glide', 0, 150, 1, 20, 'ms'), rng('mix', 'Mix', 0, 1, 0.01, 0.85)],
+      build(c, p) {
+        const pass = needWorklet(c); if (pass) return pass;
+        const msg = (q) => ({ key: +q.key, scale: SCALE(q.scale), chord: CHORDS[q.chord] || [0], wave: q.wave, oct: +q.oct, glide: +q.glide });
+        const m = mixer(c, p.mix), n = new AudioWorkletNode(c, 'vmi-synthvoice', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2], processorOptions: msg(p) });
+        const split = c.createChannelSplitter(2), modG = c.createGain(), out = c.createGain();
+        m.input.connect(n); n.connect(split); split.connect(modG, 1);
+        const bank = VMI.voice.buildVocoder(c, modG, out, 22); split.connect(bank.carrier, 0);
+        out.connect(m.wet);
+        const set = (q) => { m.setMix(q.mix); n.port.postMessage(msg(q)); };
+        set(p);
+        return { input: m.input, output: m.output, set, stop() { try { bank.nz.stop(); } catch (e) { /* ignore */ } } };
+      },
+    },
     reverb: {
       name: 'Reverb', icon: '🌌', desc: 'Room, hall or cathedral space',
       params: [rng('mix', 'Mix', 0, 1, 0.01, 0.35), rng('size', 'Size', 0.3, 8, 0.1, 2.2, 's'), rng('tone', 'Tone', 0.05, 1, 0.01, 0.5), rng('pre', 'Pre-delay', 0, 0.2, 0.005, 0.02, 's')],
@@ -179,15 +219,13 @@
       },
     },
     autotune: {
-      name: 'Auto-Tune', icon: '🎤', desc: 'Pitch-correct vocals as they play',
+      name: 'Auto-Tune', icon: '🎤', desc: 'Pitch-correct vocals as they play', worklet: true,
       params: [sel('key', 'Key', ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((k, i) => [i, k]), 0), sel('scale', 'Scale', [['major', 'Major'], ['minor', 'Minor'], ['pentatonic minor', 'Pentatonic minor'], ['pentatonic major', 'Pentatonic major'], ['blues', 'Blues'], ['chromatic', 'Chromatic']], 'major'), rng('speed', 'Retune speed', 0, 200, 1, 10, 'ms'), rng('amount', 'Amount', 0, 1, 0.01, 1)],
       build(c, p) {
-        if (!FX.workletReady(c)) { // load the processor, then the strip rebuilds itself
-          FX.loadWorklet(c).then(() => { if (VMI.st && VMI.st.graph && VMI.st.graph.c === c) { VMI.st.graph.strips.forEach((s) => { s.fxKey = null; }); VMI.st.sync(); } }).catch(() => {});
-          const pass = c.createGain(); return { input: pass, output: pass, set() { } };
-        }
-        const n = new AudioWorkletNode(c, 'vmi-autotune', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
-        const set = (q) => { n.port.postMessage({ on: true, key: +q.key, scale: (VMI.pitch.SCALES[q.scale] || VMI.pitch.SCALES.major), speed: +q.speed, amount: +q.amount, mode: 'tune' }); };
+        const pass = needWorklet(c); if (pass) return pass;
+        const msg = (q) => ({ on: true, key: +q.key, scale: (VMI.pitch.SCALES[q.scale] || VMI.pitch.SCALES.major), speed: +q.speed, amount: +q.amount, mode: 'tune', shift: 0 });
+        const n = new AudioWorkletNode(c, 'vmi-autotune', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1], processorOptions: msg(p) });
+        const set = (q) => { n.port.postMessage(msg(q)); };
         set(p);
         return { input: n, output: n, set };
       },
@@ -199,12 +237,12 @@
   FX.workletReady = (c) => ready.has(c);
   FX.loadWorklet = (c) => {
     if (ready.has(c)) return Promise.resolve();
-    if (!loading.has(c)) loading.set(c, c.audioWorklet.addModule('js/studio/worklets.js?v=19').then(() => { ready.add(c); }));
+    if (!loading.has(c)) loading.set(c, c.audioWorklet.addModule('js/studio/worklets.js?v=27').then(() => { ready.add(c); }));
     return loading.get(c);
   };
   /** call before building strips in an offline context */
   FX.prepare = async (c, project) => {
-    if (project.tracks.some((t) => (t.fx || []).some((f) => f.on && f.type === 'autotune'))) await FX.loadWorklet(c);
+    if (project.tracks.some((t) => (t.fx || []).some((f) => f.on && FX.types[f.type] && FX.types[f.type].worklet))) await FX.loadWorklet(c);
   };
 
   FX.defaults = (type) => { const o = {}; FX.types[type].params.forEach((q) => { o[q.id] = q.def; }); return o; };
@@ -220,13 +258,21 @@
   /* ---------- one-click presets (chains) ---------- */
   const P = (name, icon, desc, chain) => ({ name, icon, desc, chain });
   FX.presets = [
+    P('Electric robot voice', '🤖', 'Your words, sung by a robot synth in key', [['autotune', { speed: 0, amount: 1 }], ['synthvoice', { chord: 'mono', mix: 0.85 }], ['crusher', { bits: 10, tone: 7000, mix: 0.25 }], ['reverb', { mix: 0.2, size: 1.6 }]]),
+    P('Talkbox', '🎛️', 'Funky talkbox / Daft-Punk style voice', [['synthvoice', { chord: 'octave', wave: 'square', mix: 1, glide: 40 }], ['chorus', { rate: 0.5, depth: 0.4, mix: 0.3 }], ['reverb', { mix: 0.15, size: 1.2 }]]),
+    P('Choir of me', '👥', 'Your voice as a big synth choir', [['synthvoice', { chord: 'triad', mix: 0.7 }], ['chorus', { rate: 0.6, depth: 0.6, mix: 0.5 }], ['reverb', { mix: 0.45, size: 4 }]]),
+    P('Chipmunk', '🐭', 'Pitch up an octave-ish', [['pitch', { semis: 7 }]]),
+    P('Deep voice', '🐻', 'Pitch down', [['pitch', { semis: -5 }], ['eq', { low: 3 }]]),
+    P('Reverb · room', '🏠', 'Natural small-room reverb', [['reverb', { mix: 0.3, size: 0.9, tone: 0.55, pre: 0.01 }]]),
+    P('Reverb · hall', '🌌', 'Big, lush concert-hall reverb', [['reverb', { mix: 0.42, size: 2.6, tone: 0.5, pre: 0.025 }]]),
+    P('Echo + reverb', '🔁', 'Tempo echoes in a big space', [['delay', { mix: 0.3, time: '1/8d', fb: 0.4 }], ['reverb', { mix: 0.3, size: 2.2 }]]),
     P('Radio-ready vocal', '🎙️', 'Clean, upfront, polished pop/rap vocal', [['eq', { hp: 90, lmid: -2, pres: 3, air: 4 }], ['comp', { thr: -22, ratio: 4, gain: 1.5 }], ['delay', { mix: 0.12, time: '1/8d', fb: 0.25 }], ['reverb', { mix: 0.18, size: 1.6 }]]),
     P('Hard Auto-Tune', '⚡', 'The robotic “T-Pain” effect (set the key!)', [['autotune', { speed: 0, amount: 1 }], ['comp', { thr: -20, ratio: 3 }], ['reverb', { mix: 0.2, size: 1.8 }]]),
     P('Soft Auto-Tune', '🎶', 'Natural pitch correction', [['autotune', { speed: 60, amount: 0.8 }], ['reverb', { mix: 0.15, size: 1.4 }]]),
     P('Telephone', '☎️', 'Thin, old phone line', [['filter', { kind: 'bandpass', freq: 1600, res: 1.2 }], ['distortion', { drive: 3, tone: 3500, out: 0.8 }]]),
     P('Old radio', '📻', 'AM radio crackle and grit', [['filter', { kind: 'bandpass', freq: 1200, res: 0.8 }], ['crusher', { bits: 7, tone: 4500 }]]),
     P('Robot voice', '🤖', 'Metallic machine voice', [['robot', { freq: 55, mix: 0.85 }], ['crusher', { bits: 8, tone: 6000, mix: 0.4 }], ['reverb', { mix: 0.15, size: 0.8 }]]),
-    P('Monster / demon', '👹', 'Dark, growling, distorted', [['robot', { freq: 30, mix: 0.5 }], ['distortion', { drive: 10, tone: 2200, out: 0.5 }], ['reverb', { mix: 0.35, size: 3.5, tone: 0.2 }]]),
+    P('Monster / demon', '👹', 'Dark, growling, distorted', [['pitch', { semis: -7 }], ['robot', { freq: 30, mix: 0.4 }], ['distortion', { drive: 10, tone: 2200, out: 0.5 }], ['reverb', { mix: 0.35, size: 3.5, tone: 0.2 }]]),
     P('Underwater', '🌊', 'Muffled and wobbly', [['filter', { kind: 'lowpass', freq: 500, res: 3 }], ['chorus', { rate: 0.4, depth: 0.9, mix: 0.7 }]]),
     P('Cathedral', '⛪', 'Huge, long, dreamy space', [['reverb', { mix: 0.55, size: 6, tone: 0.45, pre: 0.04 }]]),
     P('Space echo', '🚀', 'Dub-style repeating echoes', [['delay', { mix: 0.45, time: '1/4d', fb: 0.7, tone: 2500 }], ['reverb', { mix: 0.3, size: 3 }]]),

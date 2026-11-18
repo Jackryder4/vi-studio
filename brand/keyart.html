@@ -44,7 +44,7 @@
   <polygon points="1050,0 1250,0 1520,760 940,760" fill="url(#beam)"/>
   <polygon points="1500,0 1600,0 1900,700 1560,700" fill="url(#beam)" opacity=".6"/>
   <!-- neon sign: the W waveform -->
-  <g transform="translate(1000 120) scale(1.35)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <g id="sign" transform="translate(1000 120) scale(1.35)" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="url(#neon)" stroke-width="30" filter="url(#bloom)" opacity=".9"/>
     <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="url(#neon)" stroke-width="13"/>
     <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="#fff" stroke-width="4" opacity=".8"/>
@@ -122,6 +122,7 @@
 <script>
   const q = new URLSearchParams(location.search);
   if (q.get('text') === '1') document.getElementById('copy').hidden = false;
+  if (q.get('nosign') === '1') document.getElementById('sign').remove();
   if (innerHeight > innerWidth) document.body.classList.add('tall');
 </script>
 </body></html>

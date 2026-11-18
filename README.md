@@ -13,6 +13,9 @@ An underground music production studio for the browser, Windows and phones. You 
 
 **Your voice, your sounds**
 - **Recording:** record your voice or beatbox with a count-in and metronome.
+- **🎤 Voice FX panel** (on every recorded track, all live): pitch ±12 semitones with fine tune (timing kept), Auto-Tune from Natural to Robotic, a voice synth (Robot, Talkbox, Choir of me, Alien, Monster, Chipmunk, Telephone, Megaphone, Radio, Underwater, Lo-fi), reverb (room, hall, cathedral) and echo. **🎧 Hear myself live** sends your mic through the effects and shows a tuner. **💾 Bake effects** prints them into a new take.
+- **🗣→🎹 Sound Mapper:** beatbox, click, pop or hum, and every different sound becomes a group. Each group becomes any drum, any instrument (it can follow the melody you hummed), or your own sound as a playable instrument. The rhythm is kept.
+- **Quick-start bar:** Record my voice · Beatbox → beat · Sound → instrument · Create a song · Effects.
 - **🔬 Sound Lab:** an editor for any recorded sound.
   - Select, crop, cut, fade, reverse and normalize.
   - Pitch up or down by semitones and cents. "Keep timing" keeps the length, "Tape" changes speed too, and "Voice-safe" avoids the chipmunk sound.
@@ -81,15 +84,18 @@ Bump the `?v=` numbers in `index.html` and the cache name in `sw.js`, then commi
 
 ## Files
 - `js/audio.js`, `js/voices.js`, `js/instruments.js`, `js/ui.js`, `js/app.js`: the sound engine, instruments, layouts, pages and routing.
+- `js/logo.js`: the living logo and the animated neon sign on the home page (pulse + electric current).
 - `js/studio/`:
   - `engine.js`: transport, recording, export.
   - `graph.js`: the mixer.
   - `fx.js`, `fxui.js`: the FX rack.
   - `soundlab.js`: the Sound Lab.
+  - `voicefx.js`: the Voice FX panel.
+  - `mapper.js`: the Sound Mapper.
   - `gen.js`: the song generator.
   - `beatbox.js`: live beatbox and the classifier.
   - `pitch.js`, `voice.js`: Auto-Tune and Voice Lab.
-  - `worklets.js`: live Auto-Tune and the hit detector.
+  - `worklets.js`: live Auto-Tune, pitch shift, the voice synth and the hit detector.
   - `midi.js`: MIDI input.
   - `export.js`: MP3 and stem export.
   - `loops.js`: the loop library.

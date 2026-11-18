@@ -108,15 +108,33 @@
      ========================================================= */
   U.build = () => {
     const root = $('#studio'); root.innerHTML = '';
-    root.append(buildTop(), h('div', { class: 'st-main' }, buildBrowser(), buildArr()), buildBottom());
+    root.append(buildTop(), buildQuick(), h('div', { class: 'st-main' }, buildBrowser(), buildArr()), buildBottom());
     U.renderBrowser(); U.renderArr(); U.renderBottom(); U.updateTransport();
   };
+
+  /* ---------- quick actions: the main things people come here to do ---------- */
+  function buildQuick() {
+    const qa = (icon, title, sub, fn, id) => h('button', { class: 'qa', id, onclick: fn }, h('span', { class: 'qa-i' }, icon), h('span', { class: 'qa-t' }, h('b', null, title), h('small', null, sub)));
+    const voiceTrack = () => {
+      let t = ST.track(ST.selTrack);
+      if (!t || t.type !== 'audio' || t.mute) t = ST.proj().tracks.find((x) => x.type === 'audio' && x.name === 'Vocals' && !x.mute);
+      if (!t) { ST.snap(); t = ST.addTrack({ type: 'audio', name: 'Vocals' }); ST.touch(); }
+      ST.selTrack = t.id; ST.armed = t.id; ST.emit('selection'); U.setTab('play');
+      return t;
+    };
+    return h('div', { class: 'st-quick', id: 'st-quick' },
+      qa('🎤', 'Record my voice', 'Then pitch it, Auto-Tune it, make it a robot', () => { voiceTrack(); ST.toast('Get ready: 1 bar count-in, then sing or rap. Press Space to stop.'); ST.record(); }, 'qa-voice'),
+      qa('🗣', 'Beatbox → beat', 'Each mouth sound becomes a drum or instrument', () => U.quickRec({ title: '🗣 Beatbox → beat', hint: 'Beatbox a loop: kicks, snares, hats, clicks, hums, any sounds. Then press Stop and choose what each sound becomes.', after: (s) => { U.addSampleTrack(s.id); const f = ST.findClip(ST.selClip); VMI.mapper.open(s.id, f && f.c); } }), 'qa-beatbox'),
+      qa('🔊', 'Sound → instrument', 'Record a beep, hum or whistle, play it on keys', () => U.quickRec({ title: '🔊 Sound → instrument', hint: 'Make ONE sound: a “beep”, a hum, a whistle, a pop, a bottle… then Stop. You’ll pitch it and turn it into a keyboard instrument.', after: (s) => VMI.slab.open(s.id) }), 'qa-sound'),
+      qa('✨', 'Create a song', 'Genre + mood → a full arranged track', () => VMI.gen.dialog(), 'qa-create'),
+      qa('🎛', 'Effects', 'Reverb, robot, Auto-Tune… on any track', () => U.setTab('fx'), 'qa-fx'));
+  }
 
   /* ---------- top bar ---------- */
   function buildTop() {
     const iconBtn = (id, label, title, fn, cls) => h('button', { id, class: 'btn tbtn ' + (cls || ''), title, onclick: fn, 'aria-label': title }, label);
     return h('header', { class: 'st-top' },
-      h('a', { class: 'btn tbtn home-logo', href: '#/', title: 'WACK MUZIC home' }, h('img', { src: 'assets/logo-mark.svg', alt: 'Home' })),
+      h('a', { class: 'btn tbtn home-logo', href: '#/', title: 'WACK MUZIC home' }, VMI.logoMark()),
       h('button', { id: 'btnSide', class: 'btn tbtn only-narrow', title: 'Sounds & library', onclick: () => $('.st-browser').classList.toggle('open') }, '☰'),
       h('input', { id: 'prjName', class: 'prj-name', value: ST.proj().name, 'aria-label': 'Project name', onchange: (e) => { ST.proj().name = e.target.value || 'Untitled song'; ST.autosave(); } }),
       h('button', { id: 'btnFile', class: 'btn tbtn', onclick: (e) => fileMenu(e.currentTarget) }, 'File ▾'),
@@ -657,6 +675,7 @@
       else lp.textContent = String(Math.floor(b / 4) + 1).padStart(3, '0') + '.' + (Math.floor(b % 4) + 1);
       $('#lcdTime').textContent = fmtTime(Math.max(0, b) * ST.spb());
     }
+    if (ST.graph) { const hl = document.querySelector('.home-logo'); if (hl) { const pk = ST.tr.playing ? ST.graph.peak() : 0; U.lvl = Math.max(pk, (U.lvl || 0) * 0.86); hl.style.setProperty('--lvl', Math.min(1, U.lvl).toFixed(3)); } }
     if (U.tab === 'mixer' && ST.graph) {
       meters.forEach((m) => { const pk = m.id ? (ST.graph.strips.get(m.id) || { peak: () => 0 }).peak() : ST.graph.peak(); m.el.style.height = Math.min(100, Math.pow(pk, 0.6) * 100) + '%'; });
     }

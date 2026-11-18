@@ -53,13 +53,15 @@
     const r = Math.pow(2, semis / 12);
     if (mode === 'tape') return SL.resample(d, r);
     if (mode === 'voice') return VMI.pitch.shift(d, sr, semis);
-    return SL.resample(SL.stretch(d, sr, r), r);
+    const o = SL.resample(SL.stretch(d, sr, r), r); // same length as the input (timing kept exactly)
+    if (o.length === d.length) return o;
+    const z = new Float32Array(d.length); z.set(o.subarray(0, d.length)); return z;
   };
   /** run audio through effect presets / chains offline ("burn in") */
   SL.bounce = async (chs, sr, chain, tail) => {
     const len = chs[0].length + Math.round((tail || 0) * sr);
     const off = new OfflineAudioContext(2, len, sr);
-    if (chain.some(([t]) => t === 'autotune')) await VMI.FX.loadWorklet(off);
+    if (chain.some(([t]) => VMI.FX.types[t] && VMI.FX.types[t].worklet)) await VMI.FX.loadWorklet(off);
     const b = off.createBuffer(chs.length, chs[0].length, sr); chs.forEach((c, i) => b.copyToChannel(c, i));
     const src = off.createBufferSource(); src.buffer = b;
     let n = src; const bpm = ST.proj() ? ST.proj().bpm : 120;
@@ -179,9 +181,16 @@
     const presetSel = h('select', { class: 'sel' }, VMI.FX.presets.map((p, i) => h('option', { value: i }, p.icon + ' ' + p.name)));
     const applyFx = () => busy('Rendering effects…', async () => {
       const p = VMI.FX.presets[+presetSel.value], [a, b] = range();
-      const seg = chs.map((d) => d.slice(a, b)), out = await SL.bounce(seg.length === 1 ? [seg[0], seg[0]] : seg, sr, p.chain, sel ? 0 : 1.5);
+      // keep the whole echo / reverb tail: it rings on over whatever comes after (never cut off)
+      const tail = Math.min(7, Math.max(1.5, ...p.chain.map(([t, q]) => (t === 'reverb' ? (q.size || 2.2) + 0.4 : t === 'delay' ? 2.5 : 0))));
+      const seg = chs.map((d) => d.slice(a, b)), out = await SL.bounce(seg.length === 1 ? [seg[0], seg[0]] : seg, sr, p.chain, tail);
       const base = chs.length === 1 ? [chs[0], chs[0]] : chs;
-      commit(base.map((d, ch) => { const o = new Float32Array(a + out[ch].length + Math.max(0, d.length - b)); o.set(d.subarray(0, a)); o.set(out[ch], a); o.set(d.subarray(b), a + out[ch].length); return o; }), 'Applied “' + p.name + '”');
+      commit(base.map((d, ch) => {
+        const w = out[ch], o = new Float32Array(Math.max(d.length, a + w.length));
+        o.set(d.subarray(0, a)); o.set(w.subarray(0, b - a), a);
+        for (let i = b; i < o.length; i++) o[i] = (i < d.length ? d[i] : 0) + (i - a < w.length ? w[i - a] : 0);
+        return o;
+      }), 'Applied “' + p.name + '”');
     });
 
     /* saving & using */

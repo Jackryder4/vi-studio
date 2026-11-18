@@ -1,7 +1,7 @@
 {
   "name": "wack-muzic-desktop",
   "productName": "WACK MUZIC",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "WACK MUZIC: underground music production studio. Record, beatbox to drums, Sound Lab, Auto-Tune, FX rack, song generator, 50+ instruments, mixing and export.",
   "main": "main.js",
   "author": "Jackryder4",
@@ -11,7 +11,8 @@
     "sync": "node sync-web.js",
     "start": "npm run sync && electron .",
     "selftest": "npm run sync && electron . --selftest",
-    "dist": "npm run sync && electron-builder --win nsis portable --publish never"
+    "dist": "npm run sync && electron-builder --win nsis portable --publish never",
+    "release": "npm run sync && electron-builder --win nsis portable --publish always"
   },
   "build": {
     "appId": "io.github.jackryder4.vistudio",
@@ -50,7 +51,11 @@
         "repo": "vi-studio",
         "releaseType": "release"
       }
-    ]
+    ],
+    "releaseInfo": {
+      "releaseName": "WACK MUZIC ${version} \u2014 make it loud",
+      "releaseNotesFile": "release-notes.md"
+    }
   },
   "devDependencies": {
     "electron": "^45.3.4",

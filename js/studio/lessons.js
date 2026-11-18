@@ -9,6 +9,24 @@
 
   TOUR.lessons = [
     {
+      id: 'voicefx', icon: '🤖', title: 'Your voice: pitch, Auto-Tune, robot, reverb', mins: 3, desc: 'Record yourself, then pitch it up or down, Auto-Tune it, turn it into an electric robot voice and add reverb, all live.',
+      steps: [
+        { sel: '#qa-voice', title: '1. Record my voice', text: 'Click 🎤 Record my voice. After a 1-bar count-in, sing, rap, talk or beatbox. Press Space to stop.' },
+        { sel: '#st-bottom', title: '2. Loop it', text: 'In the Voice FX panel press 🔁 Loop my recording. It keeps playing while you change things, so you hear every knob.', before: tab('play') },
+        { sel: '#st-bottom', title: '3. Pitch & Auto-Tune', text: 'Pitch: −12 … +12 semitones (timing stays the same). Turn on Auto-Tune and push Strength to “Robotic” for the hard T-Pain sound. Not a singer? Auto-Tune snaps every note into the song’s key.' },
+        { sel: '#st-bottom', title: '4. Electric voice + space', text: 'Pick 🤖 Robot, 🎛️ Talkbox or 👥 Choir of me to turn your voice into a synth that sings in key. Add Reverb (room / hall / cathedral) and Echo. 🎧 Hear myself live lets you sing through it all in real time (use headphones).' },
+      ],
+    },
+    {
+      id: 'mapper', icon: '🗣', title: 'Beatbox → a full song (Sound Mapper)', mins: 3, desc: 'Every different mouth sound becomes the drum or instrument you choose: kicks, snares, hats, a hummed bass line…',
+      steps: [
+        { sel: '#qa-beatbox', title: '1. Beatbox a loop', text: 'Click 🗣 Beatbox → beat, press ● Record and beatbox: kicks, snares, hats, clicks, and hum a melody too. Press Stop.' },
+        { sel: '.modal', title: '2. Your sounds, grouped', text: 'The Sound Mapper finds each different sound and groups them (Sound A, B, C…). Press ▶ to hear a group.' },
+        { sel: '.modal', title: '3. Choose what each becomes', text: 'Any drum, any instrument (turn on “Follow my pitch” to play the melody you hummed), or “🎹 My own sound as an instrument”, which you can then pitch up and down on any note.' },
+        { sel: '.modal', title: '4. Build', text: 'Press 🎶 Build tracks from my sounds. You get real tracks that keep your exact rhythm, ready to edit, add FX to and mix.' },
+      ],
+    },
+    {
       id: 'create', icon: '✨', title: 'Generate a full song', mins: 2, desc: 'Pick a genre and mood, get an arranged track, then make it yours.',
       steps: [
         { sel: '#btnGen', title: '1. Create', text: 'Click ✨ Create. Choose a genre (Hip-hop, Trap, Lo-fi, Afrobeat…), a mood, tempo, key and length, then Generate. Your current song is saved first.' },

@@ -22,6 +22,8 @@ const jobs = [
   { out: path.join(OUT, 'logo-horizontal.png'), file: 'logo-horizontal.svg', w: 1800, h: 440, transparent: true },
   // key art
   { out: path.join(OUT, 'hero-2560x1440.jpg'), file: 'keyart.html', w: 2560, h: 1440, jpg: true },
+  // website hero background: no sign (the site draws the animated sign on top)
+  { out: path.join(BRAND, '..', 'assets', 'hero.jpg'), file: 'keyart.html', q: '?nosign=1', w: 1920, h: 1080, jpg: true },
   { out: path.join(OUT, 'hero-text-1920x1080.png'), file: 'keyart.html', q: '?text=1', w: 1920, h: 1080 },
   { out: path.join(OUT, 'play-feature-1024x500.png'), file: 'keyart.html', q: '?text=1', w: 1024, h: 500 },
   { out: path.join(OUT, 'social-1200x630.png'), file: 'keyart.html', q: '?text=1', w: 1200, h: 630 },
@@ -46,4 +48,5 @@ async function shot(j) {
   console.log('wrote', path.relative(path.join(BRAND, '..'), j.out), j.w + 'x' + j.h);
 }
 app.disableHardwareAcceleration();
-app.whenReady().then(async () => { for (const j of jobs) { try { await shot(j); } catch (e) { console.log('FAILED', j.out, e.message); } } app.quit(); });
+const only = process.argv.slice(2).find((x) => !x.startsWith('-') && !x.endsWith('.js'));
+app.whenReady().then(async () => { for (const j of jobs.filter((x) => !only || x.out.includes(only))) { try { await shot(j); } catch (e) { console.log('FAILED', j.out, e.message); } } app.quit(); });
