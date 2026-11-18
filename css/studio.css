@@ -234,3 +234,10 @@
 .bt { font-size: 12.5px; }
 .midi-btn.hit { box-shadow: 0 0 0 2px var(--accent2); }
 .midi-btn.active { border-color: var(--accent2); color: #b8fff6; background: #0f2f2b; }
+@media (max-width: 1500px) {
+  .st-top .midi-btn span, .st-top .lbl { display: none; }
+  .prj-name { width: 140px; }
+  .st-top { gap: 6px; }
+}
+.tgroup .tbtn.accent { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tgroup .tbtn.accent:hover { background: #ffc15a; }

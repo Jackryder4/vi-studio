@@ -1,0 +1,54 @@
+{
+  "name": "vi-studio-desktop",
+  "productName": "Virtual Instruments Studio",
+  "version": "1.0.0",
+  "description": "A music studio on your PC: 50+ instruments, recording, Auto-Tune, beatbox to drums, loops, mixing and export.",
+  "main": "main.js",
+  "author": "Jackryder4",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "sync": "node sync-web.js",
+    "start": "npm run sync && electron .",
+    "selftest": "npm run sync && electron . --selftest",
+    "dist": "npm run sync && electron-builder --win nsis portable"
+  },
+  "build": {
+    "appId": "io.github.jackryder4.vistudio",
+    "productName": "Virtual Instruments Studio",
+    "copyright": "Jackryder4",
+    "files": [
+      "main.js",
+      "web/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "web/icons/icon-512.png",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "VI Studio",
+      "artifactName": "VI-Studio-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "VI-Studio-Portable-${version}.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.3.4",
+    "electron-builder": "^26.18.0"
+  },
+  "allowScripts": {
+    "electron@45.3.4": true
+  }
+}

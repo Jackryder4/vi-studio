@@ -24,6 +24,24 @@ Opening `index.html` directly works for playing, but browsers only allow the **m
 ## Install as an app
 The site is an installable web app (PWA). On a phone, open it over https and choose “Add to Home Screen”. On desktop Chrome or Edge, click “Install app” on the home page. It then opens full-screen and works offline. The same code can later be wrapped for the App Store and Google Play (for example with Capacitor).
 
+## Windows desktop app
+The `desktop/` folder wraps the same website in Electron and produces a real Windows program. It works fully offline, has its own window, icon and Start-menu entry, and "Save as" dialogs for exports.
+```
+cd desktop
+npm install
+npm run dist
+```
+- **Approve Electron's download step:** if npm 11+ blocks install scripts, run `npm approve-scripts electron`, then `node node_modules/electron/install.js`.
+- **Output** goes to `desktop/dist/`:
+  - `VI-Studio-Setup-1.0.0.exe`: the installer.
+  - `VI-Studio-Portable-1.0.0.exe`: runs without installing.
+- **Other commands:**
+  - `npm start` runs the app without building an installer.
+  - `npm run selftest` checks audio, live Auto-Tune, mic and MIDI access, saving and export, then prints the results.
+- **Updates:** `npm run sync` copies the website into `desktop/web`; `start`, `selftest` and `dist` run it automatically.
+- **MP3 export** still needs internet, because the encoder loads from cdnjs.
+- **SmartScreen warning:** the app isn't code-signed, so Windows SmartScreen shows a warning on first run. Click "More info", then "Run anyway".
+
 ## Computer keyboard
 Notes run low to high in one line, 3 octaves: `Z X C V B N M , . /` (C3–E4), then continuing `Q W E R T Y U I O P [ ]` (F4–C6). Black keys are the keys just above their white keys: `S D  G H J  L ;` and `2 3 4  6 7  9 0 -`. Use ↑ / ↓ to shift octaves.
 
@@ -68,6 +86,7 @@ Notes run low to high in one line, 3 octaves: `Z X C V B N M , . /` (C3–E4), t
 - `js/studio/export.js`: MP3 export, stem export, ZIP writer.
 - `js/studio/loops.js`: the loop and sample library.
 - `manifest.webmanifest`, `sw.js`, `icons/`: installable app and offline support.
+- `desktop/`: the Windows desktop app (Electron): `main.js`, `sync-web.js`, `package.json`.
 - `css/base.css`, `css/style.css`, `css/studio.css`: design system and home page, instrument skins, studio.
 
 When you change any JS or CSS file, bump the `?v=` number in `index.html` so browsers load the new version.
