@@ -1,6 +1,7 @@
-// Virtual Instruments Studio — Windows desktop app (Electron).
+// WACK MUZIC — Windows desktop app (Electron).
 // Serves the website from a private app:// origin so mic, MIDI, AudioWorklet and IndexedDB behave like on https.
-const { app, BrowserWindow, protocol, net, session, shell, Menu } = require('electron');
+const { app, BrowserWindow, protocol, net, session, shell, Menu, dialog } = require('electron');
+const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -14,6 +15,15 @@ protocol.registerSchemesAsPrivileged([
 // instruments should sound on the very first key press
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
+// Self-tests run in a throw-away profile so they never touch the user's projects.
+if (SELFTEST) app.setPath('userData', path.join(app.getPath('temp'), 'wack-muzic-selftest'));
+// Keep projects/recordings from version 1 ("Virtual Instruments Studio") after the rename.
+else try {
+  const legacy = path.join(app.getPath('appData'), 'Virtual Instruments Studio');
+  const current = path.join(app.getPath('appData'), 'WACK MUZIC');
+  if (fs.existsSync(legacy) && !fs.existsSync(current)) app.setPath('userData', legacy);
+} catch (e) { /* ignore */ }
+
 let win = null;
 if (!SELFTEST && !app.requestSingleInstanceLock()) app.quit();
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
@@ -21,7 +31,7 @@ app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(
 function createWindow() {
   win = new BrowserWindow({
     width: 1440, height: 900, minWidth: 900, minHeight: 600,
-    backgroundColor: '#0e0f12', title: 'Virtual Instruments Studio',
+    backgroundColor: '#07070b', title: 'WACK MUZIC',
     icon: path.join(WEB, 'icons', 'icon-512.png'), autoHideMenuBar: true, show: false,
     webPreferences: { contextIsolation: true, sandbox: true, backgroundThrottling: false, spellcheck: false },
   });
@@ -41,7 +51,13 @@ function buildMenu() {
     { label: 'File', submenu: [{ label: 'Home', accelerator: 'Alt+Home', click: go('#/') }, { label: 'Open Studio', accelerator: 'Ctrl+Shift+S', click: go('#/studio') }, { label: 'Learn', click: go('#/learn') }, { type: 'separator' }, { role: 'quit' }] },
     { label: 'Edit', submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
     { label: 'View', submenu: [{ role: 'togglefullscreen' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { role: 'resetZoom' }, { type: 'separator' }, { role: 'reload' }, { role: 'toggleDevTools' }] },
-    { label: 'Help', submenu: [{ label: 'Lessons & guides', click: go('#/learn') }, { label: 'Open the website', click: () => shell.openExternal(SITE) }] },
+    { label: 'Help', submenu: [
+      { label: 'Lessons & guides', click: go('#/learn') },
+      { label: 'Check for updates…', click: () => checkUpdates(true) },
+      { label: 'Open the website', click: () => shell.openExternal(SITE) },
+      { type: 'separator' },
+      { label: 'About WACK MUZIC', click: () => dialog.showMessageBox(win, { type: 'info', title: 'About', message: 'WACK MUZIC ' + app.getVersion(), detail: 'Make it loud. Underground music production studio. ' + SITE }) },
+    ] },
   ]));
 }
 
@@ -66,13 +82,31 @@ app.whenReady().then(() => {
   ses.setPermissionCheckHandler((wc, perm, origin) => ok.has(perm) && (!origin || origin.startsWith('app://')));
   buildMenu();
   createWindow();
-  if (SELFTEST) selfTest();
+  if (SELFTEST) selfTest(); else setTimeout(() => checkUpdates(false), 6000);
 });
 app.on('window-all-closed', () => app.quit());
 
+/* ---------- automatic updates from GitHub Releases (installed version only; portable can't self-update) ---------- */
+let updater = null;
+function checkUpdates(manual) {
+  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR) { if (manual) dialog.showMessageBox(win, { message: 'Updates install automatically in the installed version of WACK MUZIC.', detail: 'Download the latest from ' + SITE.replace('jackryder4.github.io/vi-studio/', 'github.com/Jackryder4/vi-studio/releases') }); return; }
+  try { updater = updater || require('electron-updater').autoUpdater; } catch (e) { return; }
+  updater.autoDownload = true;
+  updater.removeAllListeners();
+  updater.on('update-downloaded', (info) => {
+    dialog.showMessageBox(win, { type: 'info', buttons: ['Restart now', 'Later'], defaultId: 0, title: 'Update ready', message: 'WACK MUZIC ' + info.version + ' is ready.', detail: 'Restart to finish updating. Your projects and sounds are kept.' })
+      .then((r) => { if (r.response === 0) updater.quitAndInstall(); });
+  });
+  if (manual) {
+    updater.once('update-not-available', () => dialog.showMessageBox(win, { message: 'You have the latest version (' + app.getVersion() + ').' }));
+    updater.once('error', (e) => dialog.showMessageBox(win, { type: 'warning', message: 'Could not check for updates.', detail: String(e && e.message || e) }));
+  } else updater.on('error', () => {});
+  updater.checkForUpdates().catch(() => {});
+}
+
 /* `npm run selftest`: loads the app hidden, checks the important features and prints the result. */
 function selfTest() {
-  const timeout = setTimeout(() => { console.log('SELFTEST_TIMEOUT'); app.exit(2); }, 60000);
+  const timeout = setTimeout(() => { console.log('SELFTEST_TIMEOUT'); app.exit(2); }, 300000);
   win.webContents.once('did-finish-load', async () => {
     try {
       const r = await win.webContents.executeJavaScript(`(async () => {
@@ -98,6 +132,15 @@ function selfTest() {
         out.exportSeconds = +buf.duration.toFixed(1); out.exportPeak = +mx.toFixed(2);
         const loop = await VMI.loops.render(VMI.loops.byId('dl-house'), 120); out.loopRender = +(loop.ch[0].length / loop.sr).toFixed(2);
         out.keyboardKeys = VMI.KEYMAP.length;
+        out.title = document.title;
+        out.modules = ['FX', 'fxui', 'slab', 'gen', 'bb'].filter((k) => !VMI[k]).join(',') || 'all loaded';
+        let t0 = performance.now();
+        await VMI.gen.create({ genre: 'Hip-hop', mood: 'chill', key: 'auto', bpm: 0, len: 'full', melody: true, fx: true });
+        out.generateMs = Math.round(performance.now() - t0);
+        t0 = performance.now(); const song = await VMI.st.renderMix({});
+        out.fullSongSeconds = +song.duration.toFixed(1); out.fullSongExportMs = Math.round(performance.now() - t0);
+        const sl = VMI.slab.pitch(new Float32Array(48000).map((_, i) => Math.sin(i / 10)), 48000, 5, 'keep'); out.soundLabPitch = sl.length === 48000;
+        out.fxTypes = Object.keys(VMI.FX.types).length; out.fxPresets = VMI.FX.presets.length; out.loops = VMI.loops.items.length;
         return out;
       })()`, true);
       console.log('SELFTEST ' + JSON.stringify(r));

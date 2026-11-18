@@ -1,13 +1,13 @@
 {
-  "name": "Virtual Instruments Studio",
-  "short_name": "VI Studio",
-  "description": "A music studio in your browser: 50+ instruments, recording, Auto-Tune, beatbox to drums, mixing and export.",
+  "name": "WACK MUZIC",
+  "short_name": "WACK MUZIC",
+  "description": "Underground music production studio: record, beatbox to drums, Auto-Tune, FX rack, sound lab, 50+ instruments, song generator, mixing and export.",
   "start_url": "./#/studio",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0e0f12",
-  "theme_color": "#0e0f12",
+  "background_color": "#07070b",
+  "theme_color": "#07070b",
   "categories": ["music", "entertainment", "education"],
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },

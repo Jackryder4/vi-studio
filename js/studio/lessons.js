@@ -9,6 +9,41 @@
 
   TOUR.lessons = [
     {
+      id: 'create', icon: '✨', title: 'Generate a full song', mins: 2, desc: 'Pick a genre and mood, get an arranged track, then make it yours.',
+      steps: [
+        { sel: '#btnGen', title: '1. Create', text: 'Click ✨ Create. Choose a genre (Hip-hop, Trap, Lo-fi, Afrobeat…), a mood, tempo, key and length, then Generate. Your current song is saved first.' },
+        { sel: '#st-arr', title: '2. It’s all editable', text: 'You get real tracks: drums, bass, chords, lead and pad, arranged into intro, verse, chorus, bridge and outro. Double-click any clip to edit notes.' },
+        { sel: '#st-arr', title: '3. Regenerate a part', text: 'Don’t like the melody? Open that track’s ⋯ menu → 🎲 Regenerate this part. Ctrl+Z goes back.' },
+        { sel: '#add-audio', title: '4. Add your voice', text: 'Add an audio track and record your vocals or beatbox on top, then use FX and Auto-Tune to make it sit in the beat.' },
+      ],
+    },
+    {
+      id: 'fx', icon: '🎛️', title: 'FX rack: transform any sound', mins: 2, desc: 'Reverb, echo, distortion, robot, telephone, wobble, Auto-Tune… on any track.',
+      steps: [
+        { sel: '#tab-fx', title: '1. Open FX', text: 'Select a track, then the 🎛 FX tab. Every track has its own chain of insert effects, like a real mixer.', before: tab('fx') },
+        { sel: '#st-bottom', title: '2. Start from a preset', text: '★ Presets gives you whole chains: Radio-ready vocal, Hard Auto-Tune, Robot voice, Telephone, Cathedral, Dubstep wobble, Lo-fi tape…' },
+        { sel: '#st-bottom', title: '3. Tweak and stack', text: 'Move any knob while the song plays. Add more effects, reorder them with ◀ ▶, switch one off to compare. Everything is included when you export.' },
+      ],
+    },
+    {
+      id: 'soundlab', icon: '🔬', title: 'Sound Lab: turn any sound into an instrument', mins: 3, desc: 'Record a “beep”, pitch it, stretch it, add effects, then play it on the keyboard.',
+      steps: [
+        { sel: '#bt-library', title: '1. Record anything', text: 'My Library → ● Record sound. A beep, a hum, a clap, a bottle, anything.', before: click('#bt-library') },
+        { sel: '#btnQuickRec', title: '2. Open Sound Lab', text: 'After recording press 🔬 Sound Lab (or the Sound Lab button on any sound). Drag on the wave to select a part; crop, fade, reverse, normalize.' },
+        { sel: '#btnQuickRec', title: '3. Pitch & stretch', text: 'Pitch it up or down by semitones and cents: “Keep timing” keeps its length, “Tape” changes speed too, “Voice-safe” avoids the chipmunk sound. Speed changes length without changing pitch. 🎯 Tune snaps it to the nearest note.' },
+        { sel: '#btnQuickRec', title: '4. Make it an instrument', text: '🎹 Make playable instrument: the app detects the sound’s note, so your beep plays in tune on every key. Shape it with Attack, Release, Fine tune and Loop.' },
+      ],
+    },
+    {
+      id: 'bblive', icon: '🎤', title: 'Live beatbox → drums', mins: 3, desc: 'Beatbox into the mic and hear real drums instantly, then record them.',
+      steps: [
+        { sel: '#st-arr', title: '1. Pick a drum track', text: 'Select a Drum Kit or Drum Machine track (add one from Sounds if needed).' },
+        { sel: '#st-bottom', title: '2. Teach your sounds (once)', text: 'Click 🧠 Teach my sounds. For Kick, Snare, Hi-hat (and more), press ● Teach and make that sound 4–6 times. Now the app knows YOUR voice.', before: tab('play') },
+        { sel: '#st-bottom', title: '3. Go live', text: 'Click 🎤 Beatbox → drums and beatbox: each sound plays a real drum instantly. Wear headphones.' },
+        { sel: '#btnRec', title: '4. Record it', text: 'Press ● Record while live: your beatbox becomes drum notes on the track, snapped to the grid, fully editable.' },
+      ],
+    },
+    {
       id: 'tour', icon: '🧭', title: 'Studio tour', mins: 2, desc: 'Find your way around: transport, sounds, tracks, editor and mixer.',
       steps: [
         { sel: '#tr-transport', title: 'Transport', text: 'Play / pause (Space), stop, record (red dot) and loop. Everything you build plays from here.' },
@@ -84,7 +119,7 @@
   TOUR.shortcuts = [
     ['Space', 'Play / pause'], ['Home', 'Go to start'], ['Esc', 'Stop recording / leave studio'], ['Ctrl+Z / Ctrl+Shift+Z', 'Undo / redo'],
     ['Ctrl+D', 'Duplicate selected clip'], ['Delete', 'Delete selected note or clip'], ['Ctrl+S', 'Save project'],
-    ['Z … /  then  Q … ]', 'Play the selected instrument (3 octaves, low → high)'], ['↑ / ↓', 'Octave up / down (keyboards)'], ['Right-click', 'Delete a note in the editor'],
+    ['Z … /  then  Q … ]', 'Play the selected instrument (3 octaves, low → high)'], ['↑ / ↓', 'Octave up / down (keyboards)'], ['Right-click', 'Delete a note in the editor'], ['✨ Create', 'Generate a full song'], ['🎛 FX tab', 'Effects chain for the selected track'],
   ];
 
   /* ---------- overlay ---------- */

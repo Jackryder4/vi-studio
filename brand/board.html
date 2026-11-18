@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>WACK MUZIC brand board</title>
+<style>
+  html, body { margin: 0; width: 1600px; height: 1000px; background: #07070b; color: #f4f6fb; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+  .b { display: grid; grid-template-columns: 1.25fr 1fr; grid-template-rows: 470px 1fr; gap: 18px; padding: 28px; height: 100%; box-sizing: border-box; }
+  .card { position: relative; border-radius: 22px; background: linear-gradient(180deg, #14141c, #0b0b11); border: 1px solid #23232f; overflow: hidden; padding: 26px; box-sizing: border-box; }
+  .lbl { font: 600 13px Bahnschrift, sans-serif; letter-spacing: .3em; color: #8b93a1; text-transform: uppercase; }
+  .hero { display: flex; flex-direction: column; justify-content: center; background: radial-gradient(ellipse at 70% 30%, #6b2bff40, transparent 60%), radial-gradient(ellipse at 10% 90%, #ff2bd630, transparent 55%), #0a0a10; }
+  .hero img { width: 92%; margin-top: 18px; }
+  .marks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 18px; }
+  .marks div { aspect-ratio: 1; border-radius: 18px; display: grid; place-items: center; }
+  .marks img { width: 78%; }
+  .m1 { background: #0b0b12; } .m2 { background: #f4f6fb; } .m3 { background: linear-gradient(135deg, #ff2bd6, #6b2bff 55%, #22e6ff); }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 16px; }
+  .sw div { height: 120px; border-radius: 14px; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; font: 600 12px Bahnschrift, sans-serif; border: 1px solid #ffffff14; }
+  .sw b { font-size: 14px; }
+  .grad { height: 26px; border-radius: 99px; margin-top: 14px; background: linear-gradient(90deg, #ff2bd6, #6b2bff, #22e6ff); box-shadow: 0 0 30px #6b2bff80; }
+  .type h2 { margin: 14px 0 6px; font: 700 76px/0.9 Bahnschrift, sans-serif; font-variation-settings: 'wdth' 75, 'wght' 700; text-shadow: -3px 0 #22e6ffaa, 3px 0 #ff2bd6aa; }
+  .type p { margin: 4px 0; color: #c7cbd6; font-size: 15px; }
+  .tag { font: 600 22px Bahnschrift, sans-serif; letter-spacing: .32em; color: #c9b8ff; margin-top: 18px; }
+  .tags { margin-top: 10px; color: #8b93a1; font-size: 15px; line-height: 1.7; }
+  .ui { margin-top: 16px; display: flex; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: #101017; border: 1px solid #23232f; }
+  .ui span { padding: 7px 12px; border-radius: 8px; background: #1d1d27; font: 600 13px Bahnschrift, sans-serif; }
+  .ui .on { background: #ff2bd6; color: #1a0414; } .ui .lcd { background: #050508; color: #22e6ff; font: 700 18px Consolas, monospace; text-shadow: 0 0 10px #22e6ff99; }
+</style></head><body>
+<div class="b">
+  <div class="card hero"><div class="lbl">Primary logo</div><img src="logo-horizontal.svg" alt=""></div>
+  <div class="card"><div class="lbl">App icon · light · gradient</div>
+    <div class="marks"><div class="m1"><img src="logo-mark.svg" alt=""></div><div class="m2"><img src="logo-mark.svg" alt=""></div><div class="m3"><img src="logo-mark.svg" alt=""></div></div>
+    <div class="tag">MAKE IT LOUD</div>
+    <div class="tags">Your voice. Your beat. Your studio. · From mouth to music. · Beatbox it. Build it. Drop it.</div>
+  </div>
+  <div class="card"><div class="lbl">Colour</div>
+    <div class="sw">
+      <div style="background:#FF2BD6;color:#1a0414"><b>Neon Magenta</b>#FF2BD6</div>
+      <div style="background:#22E6FF;color:#04202a"><b>Electric Cyan</b>#22E6FF</div>
+      <div style="background:#6B2BFF"><b>Ultra Violet</b>#6B2BFF</div>
+      <div style="background:#0B0B12"><b>Night</b>#0B0B12</div>
+      <div style="background:#1A1C22"><b>Graphite</b>#1A1C22</div>
+      <div style="background:#F4F6FB;color:#111"><b>Ice White</b>#F4F6FB</div>
+    </div>
+    <div class="grad"></div>
+    <div class="ui"><span>⌂</span><span>▶</span><span class="on">●</span><span class="lcd">012.3</span><span>92 BPM</span><span>🎛 FX</span><span>🔬 Sound Lab</span></div>
+  </div>
+  <div class="card type"><div class="lbl">Type · underground / industrial</div>
+    <h2>WACK MUZIC</h2>
+    <p><b>Display:</b> Bahnschrift Condensed Bold (logo, headings, LCD-style labels), with an RGB glitch split</p>
+    <p><b>Interface:</b> Inter / Segoe UI: clean and readable</p>
+    <p><b>Texture:</b> film grain, scanlines, concrete; neon tubes with bloom</p>
+    <p><b>Voice:</b> short, loud, confident: “Drop it.” “Make it loud.” “Beatbox it.”</p>
+  </div>
+</div>
+</body></html>

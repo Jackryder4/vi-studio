@@ -59,6 +59,7 @@
     ST.toast('Rendering your song…');
     const buf = await ST.renderMix({ loopOnly });
     if (!buf) { ST.toast('Nothing to export yet — add some clips', 'warn'); return null; }
+    ST.safePeak(buf);
     const lame = await X.loadLame();
     const sr = [32000, 44100, 48000].includes(buf.sampleRate) ? buf.sampleRate : 44100;
     const enc = new lame.Mp3Encoder(2, sr, kbps);
@@ -90,7 +91,7 @@
       const wav = await ST.encodeWav(buf).arrayBuffer();
       files.push({ name: String(i + 1).padStart(2, '0') + ' - ' + safe(t.name) + '.wav', data: new Uint8Array(wav) });
     }
-    const full = await ST.renderMix({});
+    const full = await ST.renderMix({}); if (full) ST.safePeak(full);
     if (full) files.push({ name: '00 - Full mix.wav', data: new Uint8Array(await ST.encodeWav(full).arrayBuffer()) });
     const readme = 'Stems from "' + P.name + '" — ' + P.bpm + ' BPM, 4/4.\nEvery file starts at bar 1 and has the same length, so drop them all at the start of your DAW timeline and they line up.\nEach stem includes its track effects (EQ, drive, compression, reverb and echo sends).\n';
     files.push({ name: 'README.txt', data: new TextEncoder().encode(readme) });

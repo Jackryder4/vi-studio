@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;overflow:hidden}img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}</style></head>
+<body><img id="i" src="logo-mark.svg"><script>
+const q=new URLSearchParams(location.search), s=+q.get('s'), k=+(q.get('k')||1);
+document.documentElement.style.cssText=document.body.style.cssText='width:'+s+'px;height:'+s+'px;background:'+(q.get('bg')||'transparent');
+const i=document.getElementById('i'); i.style.width=i.style.height=Math.round(s*k)+'px';
+</script></body></html>

@@ -1,31 +1,47 @@
-# Virtual Instruments Studio
+# WACK MUZIC: make it loud
 
-A music studio and 53 playable instruments that run in the browser. Every instrument sound is synthesized with the Web Audio API, so there are no sample files and no libraries.
+An underground music production studio for the browser, Windows and phones. You can record your voice or beatbox and turn it into drums and instruments, pitch any sound into a playable instrument, Auto-Tune it, stack studio effects, generate full songs from a genre and mood, then mix and export.
 
-**Live:** https://jackryder4.github.io/vi-studio/
+**Live:** https://jackryder4.github.io/vi-studio/ · **Windows app:** [Releases](https://github.com/Jackryder4/vi-studio/releases)
 
-## Update the live site
-After changing files, bump the `?v=` numbers in `index.html` and the cache name in `sw.js`, then run:
-```
-git add -A
-git commit -m "Describe the change"
-git push
-```
-GitHub Pages republishes in about a minute.
+## What it does
+**Make music**
+- **54 instruments:** pianos, guitars, drums, winds, bells, synth, vocoder and more. Play them with the mouse, touch, computer keyboard or a MIDI keyboard.
+- **Multitrack studio:** an arrangement timeline, piano roll and drum step grid, a mixer, undo/redo, and autosave.
+- **✨ Song generator:** choose from 10 genres (Hip-hop, Trap, Lo-fi, Pop, House/EDM, Afrobeat, R&B, Reggaeton, Rock, Cinematic), 7 moods, and a key, tempo and length. It writes a full arranged song as editable tracks: intro, verses, choruses, bridge and outro, with drums, bass, chords, melody and pads plus risers. Any part can be regenerated on its own.
+- **Loops tab:** 40 royalty-free loops, hits, vocal chops and FX, rendered at the song's tempo.
 
-## Run it locally
+**Your voice, your sounds**
+- **Recording:** record your voice or beatbox with a count-in and metronome.
+- **🔬 Sound Lab:** an editor for any recorded sound.
+  - Select, crop, cut, fade, reverse and normalize.
+  - Pitch up or down by semitones and cents. "Keep timing" keeps the length, "Tape" changes speed too, and "Voice-safe" avoids the chipmunk sound.
+  - Time-stretch without changing pitch, and burn in effects.
+  - Detect the sound's note and tune it.
+  - **Make a playable instrument:** your "beep" plays in tune on every key, with attack, release, fine tune and loop.
+- **🎤 Live beatbox to drums:** beatbox into the mic and every sound plays and records as a real kick, snare, hat, clap or percussion hit. **🧠 Teach my sounds** learns your own voice.
+- **🥁 Beatbox Lab:** turns a recorded beatbox into a drum track or a drum kit made from your voice.
+- **🎤 Voice Lab:** Auto-Tune with a pitch graph, harmonies, robot, deep and chipmunk voices, a vocoder, and melody-to-instrument.
+- **Live Auto-Tune:** hear yourself tuned in real time while you record.
+
+**Mix and export**
+- **🎛 FX rack** (FL-style inserts) on every track:
+  - **Effects:** reverb, delay, chorus, flanger, phaser, distortion, bitcrusher, filter/wobble, tremolo/auto-pan, robot, compressor, parametric EQ and Auto-Tune.
+  - **16 one-click presets:** Radio-ready vocal, Hard Auto-Tune, Telephone, Robot, Monster, Underwater, Cathedral, Lo-fi tape, Dubstep wobble and more.
+- **Mixer:** volume, pan, EQ, drive, compressor, reverb and echo sends, and a master limiter.
+- **Export:** WAV, MP3 (192 or 320 kbps), and stems (one WAV per track plus the full mix, in a ZIP).
+
+**Learn**
+- Interactive lessons that highlight each button.
+- Written guides and keyboard shortcuts on the Learn page.
+
+## Run the website locally
 ```
 python -m http.server 8123
 ```
-Then open http://localhost:8123.
+Then open http://localhost:8123. The microphone needs `https://` or `localhost`.
 
-Opening `index.html` directly works for playing, but browsers only allow the **microphone** on `https://` pages or on `http://localhost`. To use it on a phone, host the folder on any static host (GitHub Pages, Netlify and similar) and open the https URL.
-
-## Install as an app
-The site is an installable web app (PWA). On a phone, open it over https and choose “Add to Home Screen”. On desktop Chrome or Edge, click “Install app” on the home page. It then opens full-screen and works offline. The same code can later be wrapped for the App Store and Google Play (for example with Capacitor).
-
-## Windows desktop app
-The `desktop/` folder wraps the same website in Electron and produces a real Windows program. It works fully offline, has its own window, icon and Start-menu entry, and "Save as" dialogs for exports.
+## Windows app (`desktop/`)
 ```
 cd desktop
 npm install
@@ -33,60 +49,53 @@ npm run dist
 ```
 - **Approve Electron's download step:** if npm 11+ blocks install scripts, run `npm approve-scripts electron`, then `node node_modules/electron/install.js`.
 - **Output** goes to `desktop/dist/`:
-  - `VI-Studio-Setup-1.0.0.exe`: the installer.
-  - `VI-Studio-Portable-1.0.0.exe`: runs without installing.
+  - `WACK-MUZIC-Setup-<version>.exe`: the installer, with automatic updates.
+  - `WACK-MUZIC-Portable-<version>.exe`: runs without installing.
+  - `latest.yml` and the `.blockmap` file: needed for automatic updates.
 - **Other commands:**
   - `npm start` runs the app without building an installer.
-  - `npm run selftest` checks audio, live Auto-Tune, mic and MIDI access, saving and export, then prints the results.
-- **Updates:** `npm run sync` copies the website into `desktop/web`; `start`, `selftest` and `dist` run it automatically.
-- **MP3 export** still needs internet, because the encoder loads from cdnjs.
-- **SmartScreen warning:** the app isn't code-signed, so Windows SmartScreen shows a warning on first run. Click "More info", then "Run anyway".
+  - `npm run selftest` checks audio, effects, Auto-Tune, mic and MIDI access, saving, song generation and export. It uses its own temporary profile.
+- **Upgrading from 1.0:** the app keeps your projects and recordings from "Virtual Instruments Studio" 1.0.
 
-## Computer keyboard
-Notes run low to high in one line, 3 octaves: `Z X C V B N M , . /` (C3–E4), then continuing `Q W E R T Y U I O P [ ]` (F4–C6). Black keys are the keys just above their white keys: `S D  G H J  L ;` and `2 3 4  6 7  9 0 -`. Use ↑ / ↓ to shift octaves.
+### Publishing an update (so installed apps update themselves)
+1. Bump `"version"` in `desktop/package.json` (for example 2.0.1), then run `npm run dist`.
+2. On GitHub, create a release whose tag matches the version (for example `v2.0.1`).
+3. Attach these three files from `desktop/dist/`:
+   - `WACK-MUZIC-Setup-<version>.exe`
+   - `WACK-MUZIC-Setup-<version>.exe.blockmap`
+   - `latest.yml`
 
-## Pages
-- **Home** (`#/`): the instrument gallery and links to everything else.
-- **Studio** (`#/studio`): the multitrack music studio.
-- **Learn** (`#/learn`): written guides, keyboard shortcuts and tips. Every guide also has an interactive version that highlights the buttons to press.
-- **Instrument pages** (`#/<id>`, for example `#/grand-piano`): one instrument full-screen.
+   The portable `.exe` is optional.
+4. Publish the release. Installed copies find it within a minute of starting, download it, and offer **Restart now**.
 
-## Studio features
-- Arrangement timeline: drag clips to move them, drag the right edge to resize, double-click a lane to make a clip. Dragging the lower half of the ruler sets the loop.
-- Piano roll for melodic tracks and a step grid for drum tracks: velocity, quantize, ×2 loop, octave shift, split and duplicate.
-- Recording what you play on any instrument, with count-in, metronome and snap. Recording your microphone onto audio tracks.
-- Mixer with volume, pan, 3-band EQ, drive, compressor, reverb and echo on every track. The master has a limiter, four reverb types and tempo-synced echo.
-- **Beatbox Lab**: detects each hit in a recording and labels it kick, snare, hi-hat or percussion. It can turn the recording into a real drum track, or into your own drum kit made from your voice.
-- **Make instrument**: plays any recording at any pitch from a keyboard.
-- **Vocal chain** on audio tracks: hear yourself, **live Auto-Tune** (key, scale, retune speed from natural to hard “T-Pain” snap, robot mode), a live pitch tuner, and optional Auto-Tune of every new take.
-- **Voice Lab** for recorded vocals: Auto-Tune with a before/after pitch graph, harmonies (3rd, 3rd+5th, octave double), robot, deep and chipmunk voices, an offline vocoder that sings another track's notes, and **melody → instrument** (sing or hum a tune and it becomes editable notes on any instrument). Every change keeps the original take so you can revert.
-- **Vocoder instrument**: talk or sing into the mic while playing keys.
-- **My Library**: your recordings, imported audio and custom instruments, stored in the browser's IndexedDB.
-- Ready-made patterns (drum beats, bass lines, chord progressions, melodies) and project templates.
-- **Loops tab**: 40 royalty-free drum loops, melodic loops, drum hits, vocal chops and FX, rendered at the song's tempo.
-- **MIDI keyboards** (Chrome/Edge): velocity, sustain pedal, standard drum note map, and knobs for track volume, pan, reverb, echo and drive.
-- **Export**: WAV (whole song or loop), MP3 at 192 or 320 kbps, and stems (one WAV per track plus the full mix, in a ZIP). The MP3 encoder (lamejs) loads from cdnjs only when you export MP3, pinned with an integrity hash, so MP3 export needs internet.
-- Undo/redo, autosave and named saves.
+## Updating the website
+Bump the `?v=` numbers in `index.html` and the cache name in `sw.js`, then commit and push. GitHub Pages republishes in about a minute.
+
+## Brand
+`brand/` contains:
+- the logo (`logo-mark.svg`, `logo-horizontal.svg`)
+- a brand board, key art and store graphics in `brand/out/`
+- AI-generation prompts in `BRAND-PROMPTS.md`
+
+`brand/render.js` re-renders all the PNGs (`npx electron ../brand/render.js` from `desktop/`).
 
 ## Files
-- `js/audio.js`, `js/voices.js`: the audio engine and all instrument synthesis.
-- `js/instruments.js`: the instrument catalog.
-- `js/ui.js`: instrument layouts (keys, strings, frets, pads, theremin), used by both the instrument pages and the studio.
-- `js/app.js`: routing, home page, Learn page and the single-instrument player.
-- `js/studio/store.js`: saving to IndexedDB.
-- `js/studio/graph.js`: the mixer graph (channel strips and master), used for both live playback and export.
-- `js/studio/engine.js`: project model, transport and scheduler, recording, beatbox analysis and WAV export.
-- `js/studio/studio-ui.js`: studio layout, browser, arrangement, Play panel and mixer.
-- `js/studio/studio-edit.js`: piano roll and step editor, audio editor, Beatbox Lab, recorder and sampler maker.
-- `js/studio/lessons.js`: tutorial content and the guided-tour overlay.
-- `js/studio/pitch.js`: pitch detection (YIN), Auto-Tune, PSOLA pitch shifting, harmonizer, melody extraction, key detection.
-- `js/studio/worklets.js`: live Auto-Tune on the audio thread.
-- `js/studio/voice.js`: vocal chain panel, Voice Lab, vocoder.
-- `js/studio/midi.js`: MIDI keyboard input.
-- `js/studio/export.js`: MP3 export, stem export, ZIP writer.
-- `js/studio/loops.js`: the loop and sample library.
-- `manifest.webmanifest`, `sw.js`, `icons/`: installable app and offline support.
-- `desktop/`: the Windows desktop app (Electron): `main.js`, `sync-web.js`, `package.json`.
-- `css/base.css`, `css/style.css`, `css/studio.css`: design system and home page, instrument skins, studio.
-
-When you change any JS or CSS file, bump the `?v=` number in `index.html` so browsers load the new version.
+- `js/audio.js`, `js/voices.js`, `js/instruments.js`, `js/ui.js`, `js/app.js`: the sound engine, instruments, layouts, pages and routing.
+- `js/studio/`:
+  - `engine.js`: transport, recording, export.
+  - `graph.js`: the mixer.
+  - `fx.js`, `fxui.js`: the FX rack.
+  - `soundlab.js`: the Sound Lab.
+  - `gen.js`: the song generator.
+  - `beatbox.js`: live beatbox and the classifier.
+  - `pitch.js`, `voice.js`: Auto-Tune and Voice Lab.
+  - `worklets.js`: live Auto-Tune and the hit detector.
+  - `midi.js`: MIDI input.
+  - `export.js`: MP3 and stem export.
+  - `loops.js`: the loop library.
+  - `studio-ui.js`, `studio-edit.js`: the studio interface and editors.
+  - `lessons.js`: the tutorials.
+  - `store.js`: saving.
+- `css/base.css`, `css/style.css`, `css/studio.css`: the design.
+- `desktop/`: the Windows app.
+- `brand/`: identity files.

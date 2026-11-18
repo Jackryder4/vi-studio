@@ -203,6 +203,7 @@
     const tools = h('div', { class: 'ed-tools' },
       h('span', { class: 'pt-name', style: 'color:' + t.color }, '🎙 ' + (c.name || s.name)),
       h('label', { class: 'field' }, h('span', { class: 'flabel' }, 'Clip gain'), h('span', { class: 'sl' }, h('input', { type: 'range', min: 0, max: 2.5, step: 0.05, value: c.gain == null ? 1 : c.gain, oninput: (e) => { c.gain = +e.target.value; gainOut.textContent = Math.round(c.gain * 100) + '%'; ST.autosave(); } }), gainOut)),
+      h('button', { class: 'btn xs accent', title: 'Cut, pitch, stretch, burn in effects, make an instrument', onclick: () => VMI.slab.open(s.id, c) }, '🔬 Sound Lab'),
       h('button', { class: 'btn xs accent', title: 'Auto-Tune, robot voice, harmonies, vocoder, melody → instrument', onclick: () => VMI.voice.lab(c) }, '🎤 Voice Lab'),
       h('button', { class: 'btn xs', title: 'Detect the hits in this sound and turn them into drums or a kit', onclick: () => U.beatLab(s.id, c) }, '🥁 Beatbox Lab'),
       c.raw ? h('button', { class: 'btn xs', title: 'Go back to the unprocessed take', onclick: () => { ST.snap(); c.sample = c.raw; delete c.raw; const s0 = ST.lib.samples.get(c.sample); if (s0) c.name = s0.name; ST.touch(); } }, '↺ Original') : null,
@@ -322,21 +323,23 @@
   /* =========================================================
      Sampler instrument maker
      ========================================================= */
-  U.makeInstrument = (sampleId) => {
+  U.makeInstrument = (sampleId, rootGuess, centsGuess) => {
     const s = ST.lib.samples.get(sampleId); if (!s) return;
     const name = h('input', { class: 'txt', value: s.name + ' synth' });
     const root = h('select', { class: 'sel' });
-    for (let m = 48; m <= 72; m++) root.append(h('option', { value: m, selected: m === 60 }, A.m2n(m)));
+    let guess = rootGuess, cents = centsGuess || 0;
+    if (guess == null && VMI.slab) { const d = VMI.slab.detect(s.ch[0], s.sr); guess = d ? d.midi : 60; cents = d ? d.cents : 0; }
+    for (let m = 24; m <= 96; m++) root.append(h('option', { value: m, selected: m === (guess || 60) }, A.m2n(m)));
     const loop = h('input', { type: 'checkbox', class: 'sw' });
     const gate = h('input', { type: 'checkbox', class: 'sw', checked: true });
     const body = h('div', { class: 'form' },
-      h('p', { class: 'muted small' }, 'Your sound becomes a keyboard instrument: each key plays it higher or lower. Set “Original note” to the pitch you sang or played so it stays in tune.'),
+      h('p', { class: 'muted small' }, 'Your sound becomes a keyboard instrument: each key plays it higher or lower, so a “beep” becomes a full melody instrument. The original note was detected automatically' + (guess ? ' (' + A.m2n(guess) + ')' : '') + ' so it plays in tune. Attack, release, fine tune and loop can be changed later in the Play panel.'),
       h('label', { class: 'field col' }, h('span', { class: 'flabel' }, 'Name'), name),
       h('label', { class: 'field' }, h('span', { class: 'flabel' }, 'Original note'), root),
       h('label', { class: 'field' }, h('span', { class: 'flabel' }, 'Stop when key is released'), gate),
       h('label', { class: 'field' }, h('span', { class: 'flabel' }, 'Loop while held (pads, drones)'), loop),
       h('div', { class: 'row' }, h('button', { class: 'btn accent', onclick: () => {
-        const def = { id: ST.uid('i_'), type: 'sampler', name: name.value.trim() || 'My instrument', sample: sampleId, root: +root.value, loop: loop.checked, gate: gate.checked, start: 0, end: s.dur, emoji: '🎙️' };
+        const def = { id: ST.uid('i_'), type: 'sampler', name: name.value.trim() || 'My instrument', sample: sampleId, root: +root.value, loop: loop.checked, gate: gate.checked, start: 0, end: s.dur, emoji: '🎙️', cents: +root.value === guess ? cents : 0 };
         ST.registerInstrument(def); U.addInstTrack(def.id); m.close();
         U.toast('“' + def.name + '” added — play it with your keyboard');
       } }, 'Create instrument')));
@@ -363,6 +366,7 @@
         last = sNew; status.textContent = 'Saved to My Library as “' + sNew.name + '”.';
         after.append(
           h('button', { class: 'btn', onclick: () => U.previewSample(last.id) }, '▶ Listen'),
+          h('button', { class: 'btn accent', onclick: () => { m.close(); VMI.slab.open(last.id); } }, '🔬 Sound Lab'),
           h('button', { class: 'btn accent', onclick: () => { m.close(); U.beatLab(last.id); } }, '🥁 Beatbox Lab'),
           h('button', { class: 'btn', onclick: () => { m.close(); U.makeInstrument(last.id); } }, '🎹 Make instrument'),
           h('button', { class: 'btn', onclick: () => { m.close(); U.addSampleTrack(last.id); } }, '+ Add to song'));

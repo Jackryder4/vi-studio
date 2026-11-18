@@ -116,10 +116,11 @@
   function buildTop() {
     const iconBtn = (id, label, title, fn, cls) => h('button', { id, class: 'btn tbtn ' + (cls || ''), title, onclick: fn, 'aria-label': title }, label);
     return h('header', { class: 'st-top' },
-      h('a', { class: 'btn tbtn', href: '#/', title: 'Home' }, h('span', { class: 'ic' }, '⌂')),
+      h('a', { class: 'btn tbtn home-logo', href: '#/', title: 'WACK MUZIC home' }, h('img', { src: 'assets/logo-mark.svg', alt: 'Home' })),
       h('button', { id: 'btnSide', class: 'btn tbtn only-narrow', title: 'Sounds & library', onclick: () => $('.st-browser').classList.toggle('open') }, '☰'),
       h('input', { id: 'prjName', class: 'prj-name', value: ST.proj().name, 'aria-label': 'Project name', onchange: (e) => { ST.proj().name = e.target.value || 'Untitled song'; ST.autosave(); } }),
       h('button', { id: 'btnFile', class: 'btn tbtn', onclick: (e) => fileMenu(e.currentTarget) }, 'File ▾'),
+      h('button', { id: 'btnGen', class: 'btn tbtn gen-btn', title: 'Generate a full song from a genre and mood', onclick: () => VMI.gen.dialog() }, '✨ Create'),
       h('div', { class: 'tgroup', id: 'tr-transport' },
         iconBtn('btnRew', '⏮', 'Go to start (Home)', () => ST.seek(0)),
         iconBtn('btnPlay', '▶', 'Play / pause (Space)', () => ST.toggle(), 'play'),
@@ -174,7 +175,7 @@
     const m = U.modal('Open project', body);
   }
   async function exportWav(loopOnly) {
-    U.toast('Rendering mixdown…');
+    U.toast('Rendering mixdown… longer songs with lots of effects take a little while');
     try {
       const blob = await ST.exportWav(loopOnly); if (!blob) return;
       const a = h('a', { href: URL.createObjectURL(blob), download: (ST.proj().name || 'song').replace(/[^\w\- ]+/g, '') + '.wav' });
@@ -276,6 +277,7 @@
         h('div', { class: 'li-top' }, h('button', { class: 'btn sm icon', title: 'Preview', onclick: () => previewSample(s.id) }, '▶'), name, h('small', null, s.dur.toFixed(1) + 's')),
         h('div', { class: 'li-btns' },
           h('button', { class: 'btn sm', title: 'Add to a new audio track at the playhead', onclick: () => addSampleTrack(s.id) }, '+ Track'),
+          h('button', { class: 'btn sm', title: 'Edit, pitch, stretch, add effects, make an instrument', onclick: () => VMI.slab.open(s.id) }, '🔬 Sound Lab'),
           h('button', { class: 'btn sm', title: 'Detect hits and turn beatbox into drums', onclick: () => U.beatLab(s.id) }, '🥁 Beatbox Lab'),
           h('button', { class: 'btn sm', title: 'Play this sound on a keyboard', onclick: () => U.makeInstrument(s.id) }, '🎹 Instrument'),
           h('button', { class: 'btn sm danger', title: 'Delete', onclick: () => { if (confirm('Delete “' + s.name + '”? Clips using it will go silent.')) ST.lib.remove(s.id); } }, '🗑'))));
@@ -389,7 +391,7 @@
     U.markSelection();
     if ($('#barsVal')) $('#barsVal').textContent = P.bars;
   };
-  ST.on('project', () => { if (U.open) { U.renderArr(); if (U.tab === 'mixer') U.renderBottom(); U.refreshEditor && U.refreshEditor(); } });
+  ST.on('project', () => { if (U.open) { U.renderArr(); if (U.tab === 'mixer' || U.tab === 'fx') U.renderBottom(); U.refreshEditor && U.refreshEditor(); } });
 
   function bindRuler(rl) {
     const beatAt = (e) => { const r = rl.getBoundingClientRect(); return Math.max(0, (e.clientX - r.left) / U.ppb); };
@@ -433,6 +435,7 @@
   function trackMenu(anchor, t) {
     U.menu(anchor, [
       { label: 'Rename', fn: () => { const el = $('[data-track="' + t.id + '"] .tn'); if (el) U.inlineEdit(el, t.name, (v) => { if (v) { ST.snap(); t.name = v; } ST.touch(); }); } },
+      t.gen && ST.proj().gen ? { label: '🎲 Regenerate this part', fn: () => VMI.gen.regenerate(t) } : null,
       t.type === 'inst' ? { label: 'Change instrument…', fn: () => chooseInstrument(t) } : null,
       { label: 'Change colour', fn: () => { ST.snap(); t.color = ST.COLORS[(ST.COLORS.indexOf(t.color) + 1) % ST.COLORS.length]; ST.touch(); } },
       { label: 'Duplicate track', fn: () => { ST.snap(); const c = JSON.parse(JSON.stringify(t)); c.id = ST.uid('t_'); c.name += ' copy'; c.clips.forEach((k) => { k.id = ST.uid('c_'); }); ST.proj().tracks.push(c); ST.touch(); } },
@@ -490,7 +493,7 @@
   function buildBottom() {
     const tab = (id, label) => h('button', { class: 'bp-tab', id: 'tab-' + id, onclick: () => U.setTab(id) }, label);
     return h('section', { class: 'st-bottom', id: 'st-bottom' },
-      h('div', { class: 'bp-tabs' }, tab('play', '🎹 Play'), tab('editor', '✏️ Editor'), tab('mixer', '🎚 Mixer'),
+      h('div', { class: 'bp-tabs' }, tab('play', '🎹 Play'), tab('editor', '✏️ Editor'), tab('fx', '🎛 FX'), tab('mixer', '🎚 Mixer'),
         h('span', { class: 'bp-info', id: 'bpInfo' }),
         h('button', { class: 'btn xs', id: 'bpCollapse', title: 'Show / hide panel', onclick: () => { const b = $('#st-bottom'); b.classList.toggle('collapsed'); setTimeout(() => U.layout && U.layout.resize && U.layout.resize(), 50); } }, '▾')),
       h('div', { class: 'bp-body', id: 'bpBody' }));
@@ -521,16 +524,17 @@
   U.setPedal = (on) => { if (pedal === on) return; pedal = on; const b = $('#pedalBtn2'); if (b) b.classList.toggle('active', on); if (!on) { sustained.forEach((x) => x.voice.release()); sustained.clear(); } };
 
   let layoutFor = null;
-  function unmountLayout() { if (U.layout) { U.layout.unmount(); U.layout = null; layoutFor = null; } }
+  function unmountLayout() { if (VMI.bb && VMI.bb.live.on) VMI.bb.toggleLive(); if (U.layout) { U.layout.unmount(); U.layout = null; layoutFor = null; } }
   U.unmountLayout = unmountLayout;
 
   U.renderBottom = () => {
     const body = $('#bpBody'); if (!body) return;
-    ['play', 'editor', 'mixer'].forEach((t) => $('#tab-' + t).classList.toggle('active', U.tab === t));
+    ['play', 'editor', 'fx', 'mixer'].forEach((t) => $('#tab-' + t).classList.toggle('active', U.tab === t));
     if (U.tab !== 'play') { unmountLayout(); if (VMI.voice) VMI.voice.leave(); }
     body.className = 'bp-body bp-' + U.tab;
     if (U.tab === 'play') renderPlay(body);
     else if (U.tab === 'editor') { body.innerHTML = ''; VMI.sedit.render(body); }
+    else if (U.tab === 'fx') VMI.fxui.render(body, curTrack());
     else renderMixer(body);
     updateInfo();
   };
@@ -545,7 +549,7 @@
     U.markSelection(); updateInfo();
     if (U.tab === 'play') renderPlay($('#bpBody'));
     else if (U.tab === 'editor') { $('#bpBody').innerHTML = ''; VMI.sedit.render($('#bpBody')); }
-    else if (U.tab === 'mixer') U.renderBottom();
+    else if (U.tab === 'mixer' || U.tab === 'fx') U.renderBottom();
   });
 
   function control(c, t) {
@@ -571,6 +575,13 @@
       h('span', { class: 'pt-name' }, inst.emoji + ' ' + inst.name),
       h('label', { class: 'field' }, h('span', { class: 'flabel' }, 'Transpose'), h('span', { class: 'sl' }, h('input', { type: 'range', min: -12, max: 12, step: 1, value: t.transpose || 0, oninput: (e) => { t.transpose = +e.target.value; e.target.nextSibling.textContent = (t.transpose > 0 ? '+' : '') + t.transpose; ST.autosave(); } }), h('output', null, (t.transpose > 0 ? '+' : '') + (t.transpose || 0)))),
       inst.layout === 'keys' ? h('span', { class: 'octs' }, h('button', { class: 'btn xs', onclick: () => U.layout && U.layout.shift(-12) }, '− Oct'), h('button', { class: 'btn xs', onclick: () => U.layout && U.layout.shift(12) }, 'Oct +')) : null,
+      inst.layout === 'pads' && inst.cfg.pads.some((p) => p.id === 'kick') ? h('span', { class: 'bb-tools' },
+        h('button', { class: 'btn xs bb-live', title: 'Beatbox into your mic: each sound plays (and records) as a drum', onclick: async (e) => {
+          const b = e.currentTarget, on = await VMI.bb.toggleLive(inst, (pid) => { const el = U.layout && U.layout.els.get(pid); if (el) { el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 110); } });
+          b.classList.toggle('active', on); b.textContent = on ? '🎤 Beatbox live: ON' : '🎤 Beatbox → drums';
+          if (on) ST.toast(VMI.bb.trained() ? 'Beatbox now! Press ● Record to capture it as drum notes.' : 'Beatbox now! Tip: “Teach my sounds” makes detection match your voice.');
+        } }, '🎤 Beatbox → drums'),
+        h('button', { class: 'btn xs', title: 'Teach the app your own kick / snare / hat sounds', onclick: () => VMI.bb.trainer() }, '🧠 Teach my sounds')) : null,
       inst.pedal ? h('button', { id: 'pedalBtn2', class: 'btn xs pedal', onpointerdown: (e) => { e.preventDefault(); U.setPedal(true); }, onpointerup: () => U.setPedal(false), onpointerleave: () => U.setPedal(false) }, 'Sustain') : null,
       inst.controls.map((c) => control(c, t)));
     const stage = h('div', { class: 'stage', id: 'playStage' });
@@ -602,6 +613,7 @@
     }
     return h('div', { class: 'cstrip' + (ST.selTrack === t.id ? ' sel' : ''), style: '--c:' + t.color, onpointerdown: () => { if (ST.selTrack !== t.id) { ST.selTrack = t.id; ST.emit('selection'); } } },
       h('div', { class: 'cs-name', title: t.name }, t.name),
+      h('button', { class: 'btn xs cs-fx' + ((t.fx || []).some((f) => f.on) ? ' on' : ''), title: (t.fx || []).map((f) => VMI.FX.types[f.type] && VMI.FX.types[f.type].name).join(' → ') || 'Add effects', onclick: () => { ST.selTrack = t.id; U.setTab('fx'); } }, '🎛 FX' + ((t.fx || []).length ? ' ' + t.fx.length : '')),
       h('div', { class: 'cs-btns' },
         h('button', { class: 'tb m' + (t.mute ? ' on' : ''), onclick: () => { t.mute = !t.mute; ST.touch(); } }, 'M'),
         h('button', { class: 'tb s' + (t.solo ? ' on' : ''), onclick: () => { t.solo = !t.solo; ST.touch(); } }, 'S'),
@@ -659,7 +671,7 @@
     U.opening = true;
     if (!ST.proj()) { const ok = await ST.loadAutosave(); if (!ok) ST.newProject('beat'); }
     U.opening = false;
-    if (location.hash !== '#/studio') return;
+    if (!location.hash.startsWith('#/studio')) return;
     ST.ensure(); ST.sync();
     U.build();
     U.open = true;

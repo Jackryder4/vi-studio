@@ -1,0 +1,127 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>WACK MUZIC key art</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: #07070b; overflow: hidden; }
+  .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .copy { position: absolute; left: 6%; top: 50%; transform: translateY(-50%); font-family: Bahnschrift, 'Arial Narrow', Impact, sans-serif; color: #f4f6fb; z-index: 2; }
+  .copy .kick { font: 600 1.6vmin/1 Bahnschrift, sans-serif; letter-spacing: .5em; color: #22e6ff; margin-bottom: 2vmin; text-transform: uppercase; }
+  .copy h1 { margin: 0; font-size: 13vmin; line-height: .9; font-weight: 700; font-variation-settings: 'wdth' 75, 'wght' 700; letter-spacing: .02em; position: relative;
+    text-shadow: -.45vmin 0 #22e6ffaa, .45vmin 0 #ff2bd6aa, 0 0 4vmin #ff2bd666; }
+  .copy p { margin: 2.4vmin 0 0; font-size: 3vmin; letter-spacing: .35em; color: #c9b8ff; font-variation-settings: 'wdth' 100, 'wght' 400; }
+  .copy .pills { margin-top: 3vmin; display: flex; gap: 1.2vmin; flex-wrap: wrap; max-width: 60vmin; }
+  .copy .pills span { font: 600 1.7vmin Bahnschrift, sans-serif; padding: .8vmin 1.6vmin; border: 1px solid #ffffff30; border-radius: 99px; color: #e8e2ff; background: #ffffff0c; }
+  .tall .copy { left: 8%; right: 8%; top: 9%; transform: none; text-align: center; }
+  .tall .copy h1 { font-size: 15vmin; } .tall .copy .pills { justify-content: center; max-width: none; }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: .14; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .scan { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, #0000 0 3px, #00000038 3px 4px); }
+  .vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 60% 45%, transparent 40%, #000000c0 100%); }
+</style></head>
+<body>
+<svg class="scene" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="neon" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF2BD6"/><stop offset=".5" stop-color="#6B2BFF"/><stop offset="1" stop-color="#22E6FF"/></linearGradient>
+    <radialGradient id="hazeV" cx=".62" cy=".28" r=".6"><stop offset="0" stop-color="#6B2BFF" stop-opacity=".55"/><stop offset="1" stop-color="#6B2BFF" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hazeM" cx=".12" cy=".75" r=".55"><stop offset="0" stop-color="#FF2BD6" stop-opacity=".35"/><stop offset="1" stop-color="#FF2BD6" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hazeC" cx=".95" cy=".7" r=".5"><stop offset="0" stop-color="#22E6FF" stop-opacity=".28"/><stop offset="1" stop-color="#22E6FF" stop-opacity="0"/></radialGradient>
+    <filter id="concrete"><feTurbulence type="fractalNoise" baseFrequency=".012 .02" numOctaves="5" seed="3"/><feColorMatrix values="0 0 0 0 .09  0 0 0 0 .085  0 0 0 0 .11  0 0 0 .9 0"/></filter>
+    <filter id="bloom" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="bloomS" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15151d"/><stop offset="1" stop-color="#050507"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121320"/><stop offset="1" stop-color="#0a0a12"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B57CFF" stop-opacity=".22"/><stop offset="1" stop-color="#B57CFF" stop-opacity="0"/></linearGradient>
+    <radialGradient id="cone" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#0b0b10"/><stop offset=".8" stop-color="#1d1d27"/><stop offset="1" stop-color="#2a2a36"/></radialGradient>
+    <pattern id="brick" width="160" height="60" patternUnits="userSpaceOnUse"><path d="M0 0H160M0 30H160M0 0V30M80 30V60" stroke="#ffffff" stroke-opacity=".035" stroke-width="2" fill="none"/></pattern>
+  </defs>
+  <!-- wall -->
+  <rect width="1920" height="1080" fill="#07070b"/>
+  <rect width="1920" height="1080" filter="url(#concrete)" opacity=".9"/>
+  <rect width="1920" height="1080" fill="url(#brick)"/>
+  <rect width="1920" height="1080" fill="url(#hazeV)"/>
+  <rect width="1920" height="1080" fill="url(#hazeM)"/>
+  <rect width="1920" height="1080" fill="url(#hazeC)"/>
+  <!-- light beams -->
+  <polygon points="1050,0 1250,0 1520,760 940,760" fill="url(#beam)"/>
+  <polygon points="1500,0 1600,0 1900,700 1560,700" fill="url(#beam)" opacity=".6"/>
+  <!-- neon sign: the W waveform -->
+  <g transform="translate(1000 120) scale(1.35)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="url(#neon)" stroke-width="30" filter="url(#bloom)" opacity=".9"/>
+    <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="url(#neon)" stroke-width="13"/>
+    <path d="M0 140 H60 L100 20 L160 250 L220 70 L280 250 L340 20 L380 140 H440" stroke="#fff" stroke-width="4" opacity=".8"/>
+    <circle cx="440" cy="140" r="14" fill="#22E6FF" filter="url(#bloomS)"/><circle cx="440" cy="140" r="6" fill="#eaffff"/>
+  </g>
+  <!-- floating hologram EQ -->
+  <g opacity=".5" transform="translate(1600 330)">
+    <rect x="0" y="40" width="14" height="80" rx="4" fill="#22E6FF"/><rect x="24" y="10" width="14" height="110" rx="4" fill="#6B2BFF"/><rect x="48" y="60" width="14" height="60" rx="4" fill="#FF2BD6"/><rect x="72" y="25" width="14" height="95" rx="4" fill="#22E6FF"/><rect x="96" y="70" width="14" height="50" rx="4" fill="#B57CFF"/>
+  </g>
+  <!-- studio monitors -->
+  <g>
+    <rect x="760" y="430" width="200" height="320" rx="18" fill="#111118" stroke="#2c2c3a" stroke-width="3"/>
+    <circle cx="860" cy="520" r="44" fill="url(#cone)"/><circle cx="860" cy="520" r="47" fill="none" stroke="#FF2BD6" stroke-width="3" filter="url(#bloomS)"/>
+    <circle cx="860" cy="650" r="72" fill="url(#cone)"/><circle cx="860" cy="650" r="76" fill="none" stroke="#FF2BD6" stroke-width="4" filter="url(#bloomS)" opacity=".9"/>
+    <rect x="1700" y="430" width="200" height="320" rx="18" fill="#111118" stroke="#2c2c3a" stroke-width="3"/>
+    <circle cx="1800" cy="520" r="44" fill="url(#cone)"/><circle cx="1800" cy="520" r="47" fill="none" stroke="#22E6FF" stroke-width="3" filter="url(#bloomS)"/>
+    <circle cx="1800" cy="650" r="72" fill="url(#cone)"/><circle cx="1800" cy="650" r="76" fill="none" stroke="#22E6FF" stroke-width="4" filter="url(#bloomS)" opacity=".9"/>
+  </g>
+  <!-- screen with the studio timeline -->
+  <g>
+    <rect x="990" y="440" width="680" height="330" rx="16" fill="#000" opacity=".6" filter="url(#bloom)"/>
+    <rect x="990" y="430" width="680" height="320" rx="14" fill="url(#screen)" stroke="#33334a" stroke-width="3"/>
+    <rect x="1010" y="450" width="640" height="26" rx="6" fill="#1b1c2a"/>
+    <text x="1024" y="469" font-family="Bahnschrift, sans-serif" font-size="16" fill="#ff2bd6" letter-spacing="2">● REC   012.3   92 BPM</text>
+    <g>
+      <rect x="1080" y="492" width="250" height="40" rx="6" fill="#FF2BD6" opacity=".85"/><rect x="1340" y="492" width="250" height="40" rx="6" fill="#FF2BD6" opacity=".85"/>
+      <rect x="1080" y="542" width="160" height="40" rx="6" fill="#22E6FF" opacity=".85"/><rect x="1260" y="542" width="160" height="40" rx="6" fill="#22E6FF" opacity=".85"/><rect x="1440" y="542" width="150" height="40" rx="6" fill="#22E6FF" opacity=".85"/>
+      <rect x="1080" y="592" width="510" height="40" rx="6" fill="#6B2BFF" opacity=".9"/>
+      <rect x="1160" y="642" width="300" height="40" rx="6" fill="#B57CFF" opacity=".85"/>
+      <path d="M1170 662 l8 -12 l8 22 l8 -30 l8 34 l8 -24 l8 16 l8 -10 l8 14 l8 -18 l8 22 l8 -14 l8 10 l8 -6 l8 8 l8 -10 l8 12 l8 -18 l8 20 l8 -8" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>
+      <rect x="1020" y="492" width="48" height="190" rx="6" fill="#141522"/>
+      <rect x="1290" y="486" width="3" height="206" fill="#fff" filter="url(#bloomS)"/><rect x="1290" y="486" width="3" height="206" fill="#fff"/>
+      <rect x="1020" y="696" width="620" height="38" rx="6" fill="#141522"/>
+      <g fill="#22E6FF" opacity=".8"><rect x="1030" y="712" width="6" height="16"/><rect x="1040" y="706" width="6" height="22"/><rect x="1050" y="716" width="6" height="12"/><rect x="1060" y="704" width="6" height="24"/></g>
+    </g>
+    <rect x="1290" y="752" width="80" height="40" fill="#15151d"/>
+  </g>
+  <!-- microphone on a boom arm -->
+  <g>
+    <path d="M520 0 L620 300 L700 420" stroke="#1d1d28" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <path d="M520 0 L620 300 L700 420" stroke="#FF2BD6" stroke-width="2" fill="none" opacity=".5"/>
+    <rect x="672" y="400" width="70" height="150" rx="35" fill="#16161f" stroke="#3a3a4c" stroke-width="3"/>
+    <rect x="680" y="408" width="54" height="80" rx="27" fill="url(#cone)"/>
+    <ellipse cx="600" cy="500" rx="70" ry="88" fill="none" stroke="#B57CFF" stroke-width="3" opacity=".45"/>
+  </g>
+  <!-- desk + keyboard -->
+  <path d="M0 780 H1920 V1080 H0 Z" fill="url(#desk)"/>
+  <rect x="0" y="778" width="1920" height="4" fill="url(#neon)" opacity=".7" filter="url(#bloomS)"/>
+  <rect x="0" y="778" width="1920" height="2" fill="url(#neon)"/>
+  <g transform="translate(980 860) skewX(-12)">
+    <rect x="0" y="0" width="720" height="130" rx="12" fill="#101017" stroke="#2c2c3a" stroke-width="3"/>
+    <g fill="#e9e9f2">
+      <rect x="20" y="40" width="40" height="80" rx="3"/><rect x="66" y="40" width="40" height="80" rx="3"/><rect x="112" y="40" width="40" height="80" rx="3"/><rect x="158" y="40" width="40" height="80" rx="3"/><rect x="204" y="40" width="40" height="80" rx="3"/><rect x="250" y="40" width="40" height="80" rx="3"/><rect x="296" y="40" width="40" height="80" rx="3"/><rect x="342" y="40" width="40" height="80" rx="3"/><rect x="388" y="40" width="40" height="80" rx="3"/><rect x="434" y="40" width="40" height="80" rx="3"/><rect x="480" y="40" width="40" height="80" rx="3"/><rect x="526" y="40" width="40" height="80" rx="3"/><rect x="572" y="40" width="40" height="80" rx="3"/><rect x="618" y="40" width="40" height="80" rx="3"/><rect x="664" y="40" width="40" height="80" rx="3"/>
+    </g>
+    <g fill="#08080c"><rect x="48" y="40" width="28" height="48" rx="2"/><rect x="94" y="40" width="28" height="48" rx="2"/><rect x="186" y="40" width="28" height="48" rx="2"/><rect x="232" y="40" width="28" height="48" rx="2"/><rect x="278" y="40" width="28" height="48" rx="2"/><rect x="370" y="40" width="28" height="48" rx="2"/><rect x="416" y="40" width="28" height="48" rx="2"/><rect x="508" y="40" width="28" height="48" rx="2"/><rect x="554" y="40" width="28" height="48" rx="2"/><rect x="600" y="40" width="28" height="48" rx="2"/></g>
+    <rect x="250" y="40" width="40" height="80" rx="3" fill="#FF2BD6" opacity=".85"/><rect x="434" y="40" width="40" height="80" rx="3" fill="#22E6FF" opacity=".85"/>
+    <g fill="#2a2a38"><circle cx="40" cy="20" r="9"/><circle cx="70" cy="20" r="9"/><circle cx="100" cy="20" r="9"/></g>
+  </g>
+  <!-- drum pads on the desk -->
+  <g transform="translate(330 870) skewX(-12)">
+    <rect width="380" height="150" rx="14" fill="#101017" stroke="#2c2c3a" stroke-width="3"/>
+    <g><rect x="20" y="18" width="78" height="54" rx="8" fill="#FF2BD6" opacity=".9"/><rect x="108" y="18" width="78" height="54" rx="8" fill="#2a2a38"/><rect x="196" y="18" width="78" height="54" rx="8" fill="#22E6FF" opacity=".9"/><rect x="284" y="18" width="78" height="54" rx="8" fill="#2a2a38"/>
+    <rect x="20" y="80" width="78" height="54" rx="8" fill="#2a2a38"/><rect x="108" y="80" width="78" height="54" rx="8" fill="#6B2BFF" opacity=".9"/><rect x="196" y="80" width="78" height="54" rx="8" fill="#2a2a38"/><rect x="284" y="80" width="78" height="54" rx="8" fill="#FF2BD6" opacity=".6"/></g>
+  </g>
+  <!-- reflections on the desk -->
+  <rect x="990" y="790" width="680" height="60" fill="url(#neon)" opacity=".08" filter="url(#bloom)"/>
+</svg>
+<div class="copy" id="copy" hidden>
+  <div class="kick">● Music production studio</div>
+  <h1>WACK<br>MUZIC</h1>
+  <p>MAKE IT LOUD</p>
+  <div class="pills"><span>Record &amp; beatbox</span><span>Auto-Tune</span><span>FX rack</span><span>50+ instruments</span><span>Song generator</span></div>
+</div>
+<div class="grain"></div><div class="scan"></div><div class="vig"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  if (q.get('text') === '1') document.getElementById('copy').hidden = false;
+  if (innerHeight > innerWidth) document.body.classList.add('tall');
+</script>
+</body></html>

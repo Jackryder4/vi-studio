@@ -3,37 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e0f12">
-<meta name="description" content="Play 50+ virtual musical instruments in your browser: piano, guitar, drums, flute, synth and more. Works with your computer keyboard and on touch screens.">
-<title>Virtual Instruments Studio</title>
-<link rel="icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#07070b">
+<meta property="og:title" content="WACK MUZIC">
+<meta property="og:description" content="Underground music studio in your browser: record, beatbox, Auto-Tune, effects, 50+ instruments, song generator.">
+<meta property="og:image" content="assets/social.jpg">
+<meta name="description" content="WACK MUZIC: an underground music production studio. Record your voice or beatbox, turn it into drums and instruments, Auto-Tune it, add effects, generate songs, mix and export.">
+<title>WACK MUZIC — make it loud</title>
+<link rel="icon" href="icons/favicon-64.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="css/base.css?v=13">
-<link rel="stylesheet" href="css/style.css?v=13">
-<link rel="stylesheet" href="css/studio.css?v=13">
+<link rel="stylesheet" href="css/base.css?v=19">
+<link rel="stylesheet" href="css/style.css?v=19">
+<link rel="stylesheet" href="css/studio.css?v=19">
 </head>
 <body>
 
 <!-- ============ HOME ============ -->
 <main id="home">
   <header class="topnav">
-    <a class="brand" href="#/"><span class="bm">♪</span> Virtual Instruments Studio</a>
+    <a class="brand" href="#/"><img class="bm-img" src="assets/logo-mark.svg" alt=""><span class="wm">WACK MUZIC</span></a>
     <nav><a href="#instruments" data-scroll>Instruments</a><a href="#/learn">Learn</a><a class="cta" href="#/studio">Open Studio</a></nav>
   </header>
   <div class="wrap">
     <section class="hero2">
       <div>
-        <span class="kicker">● Free · In your browser · No installs</span>
-        <h1>Make <em>real music</em> in your browser.</h1>
-        <p>A full music studio with <b id="countNum">50</b>+ playable instruments. You can sequence drums, record your voice and turn a beatbox into real drums. You can also build instruments from your own sounds, mix it all, and export a WAV.</p>
+        <span class="kicker">● Underground music studio · Free</span>
+        <h1 class="glitch" data-text="MAKE IT LOUD.">MAKE IT LOUD.</h1>
+        <p><b>WACK MUZIC</b> is a dark-room production studio with <b id="countNum">50</b>+ instruments. Record your voice or beatbox and turn it into kicks, snares and melodies. Pitch any sound into an instrument, Auto-Tune it and stack studio effects. Generate whole songs from a genre and mood, then mix and export.</p>
         <div class="ctas">
           <a class="btn accent" href="#/studio">🎛 Open the Studio</a>
+          <a class="btn" href="#/studio?gen=1">✨ Make me a song</a>
           <a class="btn" href="#instruments" data-scroll>🎹 Just play an instrument</a>
-          <a class="btn" href="#/learn">📖 Tutorials</a>
+          <a class="btn ghost" href="#/learn">📖 Tutorials</a>
         </div>
       </div>
       <div class="console" aria-hidden="true">
@@ -62,13 +66,13 @@
     <div class="sec-h"><div><h2>Learn in minutes</h2><p>Each lesson opens the Studio and highlights exactly what to press.</p></div><a class="btn sm" href="#/learn">All guides →</a></div>
     <div class="learn-teaser" id="learnTeaser"></div>
   </div>
-  <footer class="foot">Every sound is synthesized live with the Web Audio API. Your recordings and projects stay in this browser. Best with headphones 🎧</footer>
+  <footer class="foot"><img src="assets/logo-horizontal.svg" alt="WACK MUZIC" class="foot-logo"><br>Every sound is made live in your browser. Your recordings and projects stay on your device. Best with headphones 🎧</footer>
 </main>
 
 <!-- ============ LEARN ============ -->
 <main id="learn" hidden>
   <header class="topnav">
-    <a class="brand" href="#/"><span class="bm">♪</span> Virtual Instruments Studio</a>
+    <a class="brand" href="#/"><img class="bm-img" src="assets/logo-mark.svg" alt=""><span class="wm">WACK MUZIC</span></a>
     <nav><a href="#/">Home</a><a class="cta" href="#/studio">Open Studio</a></nav>
   </header>
   <div class="wrap learn" id="learnBody"></div>
@@ -104,25 +108,47 @@
   <div id="rotate" class="rotate" hidden>↻ Rotate your phone sideways for more room</div>
 </section>
 
+<div id="splash" class="splash" aria-hidden="true">
+  <svg class="sp-svg" viewBox="0 0 600 300">
+    <defs>
+      <linearGradient id="spg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF2BD6"/><stop offset=".5" stop-color="#6B2BFF"/><stop offset="1" stop-color="#22E6FF"/></linearGradient>
+      <filter id="spb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+    </defs>
+    <path class="sp-flat" d="M20 150 H580" stroke="#22E6FF" stroke-width="3" fill="none"/>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path class="sp-w sp-glow" d="M60 150 H160 L190 60 L240 240 L300 95 L360 240 L410 60 L440 150 H540" stroke="url(#spg)" stroke-width="22" filter="url(#spb)"/>
+      <path class="sp-w" d="M60 150 H160 L190 60 L240 240 L300 95 L360 240 L410 60 L440 150 H540" stroke="url(#spg)" stroke-width="11"/>
+      <path class="sp-w sp-core" d="M60 150 H160 L190 60 L240 240 L300 95 L360 240 L410 60 L440 150 H540" stroke="#fff" stroke-width="3"/>
+    </g>
+    <circle class="sp-dot" cx="540" cy="150" r="7" fill="#eaffff"/>
+  </svg>
+  <div class="sp-word glitch" data-text="WACK MUZIC">WACK MUZIC</div>
+  <div class="sp-tag">MAKE IT LOUD</div>
+</div>
 <div id="toasts" class="toasts"></div>
 
 <noscript><p style="padding:2rem;color:#fff">This site needs JavaScript to make sound.</p></noscript>
 
-<script src="js/audio.js?v=13"></script>
-<script src="js/voices.js?v=13"></script>
-<script src="js/instruments.js?v=13"></script>
-<script src="js/ui.js?v=13"></script>
-<script src="js/studio/store.js?v=13"></script>
-<script src="js/studio/graph.js?v=13"></script>
-<script src="js/studio/engine.js?v=13"></script>
-<script src="js/studio/studio-ui.js?v=13"></script>
-<script src="js/studio/studio-edit.js?v=13"></script>
-<script src="js/studio/lessons.js?v=13"></script>
-<script src="js/studio/pitch.js?v=13"></script>
-<script src="js/studio/voice.js?v=13"></script>
-<script src="js/studio/midi.js?v=13"></script>
-<script src="js/studio/export.js?v=13"></script>
-<script src="js/studio/loops.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
+<script src="js/audio.js?v=19"></script>
+<script src="js/voices.js?v=19"></script>
+<script src="js/instruments.js?v=19"></script>
+<script src="js/ui.js?v=19"></script>
+<script src="js/studio/store.js?v=19"></script>
+<script src="js/studio/graph.js?v=19"></script>
+<script src="js/studio/engine.js?v=19"></script>
+<script src="js/studio/studio-ui.js?v=19"></script>
+<script src="js/studio/studio-edit.js?v=19"></script>
+<script src="js/studio/lessons.js?v=19"></script>
+<script src="js/studio/pitch.js?v=19"></script>
+<script src="js/studio/voice.js?v=19"></script>
+<script src="js/studio/fx.js?v=19"></script>
+<script src="js/studio/fxui.js?v=19"></script>
+<script src="js/studio/soundlab.js?v=19"></script>
+<script src="js/studio/gen.js?v=19"></script>
+<script src="js/studio/beatbox.js?v=19"></script>
+<script src="js/studio/midi.js?v=19"></script>
+<script src="js/studio/export.js?v=19"></script>
+<script src="js/studio/loops.js?v=19"></script>
+<script src="js/app.js?v=19"></script>
 </body>
 </html>

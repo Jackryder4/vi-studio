@@ -81,3 +81,42 @@ class VmiAutoTune extends AudioWorkletProcessor {
   }
 }
 registerProcessor('vmi-autotune', VmiAutoTune);
+
+/* live beatbox hit detector: finds each sound's start and sends the first ~24 ms to the app for classification */
+class VmiOnset extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.hop = 64; this.acc = 0; this.n = 0; this.prev = [-100, -100, -100]; this.lastHit = -1e9; this.frame = 0;
+    this.thr = 9; this.floor = 0.012; this.gapF = Math.round((0.075 * sampleRate) / 64);
+    this.ring = new Float32Array(4096); this.w = 0; this.collect = 0; this.snapStart = 0;
+    this.port.onmessage = (e) => { if (e.data.sens != null) { this.thr = 4 + (1 - e.data.sens) * 12; this.floor = 0.004 + (1 - e.data.sens) * 0.02; } };
+  }
+  process(inputs, outputs) {
+    const inp = inputs[0] && inputs[0][0];
+    if (outputs[0] && outputs[0][0]) outputs[0][0].fill(0);
+    if (!inp) return true;
+    for (let i = 0; i < inp.length; i++) {
+      const x = inp[i];
+      this.ring[this.w] = x; this.w = (this.w + 1) & 4095;
+      this.acc += x * x;
+      if (this.collect > 0 && --this.collect === 0) {
+        const N = 1152, out = new Float32Array(N);
+        for (let k = 0; k < N; k++) out[k] = this.ring[(this.snapStart + k) & 4095];
+        let pk = 0; for (let k = 0; k < N; k++) pk = Math.max(pk, Math.abs(out[k]));
+        this.port.postMessage({ d: out, peak: pk, t: currentTime });
+      }
+      if (++this.n === this.hop) {
+        const rms = Math.sqrt(this.acc / this.hop);
+        // peak-hold envelope (fast attack, slow release): waveform wobble of deep kicks can't fake a new hit
+        const env = this.env || 1e-6, rise = 20 * Math.log10((rms + 1e-6) / (env + 1e-6));
+        this.frame++;
+        if (rise > this.thr && rms > this.floor && this.frame - this.lastHit > this.gapF && this.collect === 0) {
+          this.lastHit = this.frame; this.snapStart = (this.w - 192 + 4096) & 4095; this.collect = 1152 - 192;
+        }
+        this.env = Math.max(rms, env * 0.94); this.acc = 0; this.n = 0;
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('vmi-onset', VmiOnset);

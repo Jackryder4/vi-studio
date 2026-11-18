@@ -262,7 +262,7 @@
     A.setReverb(inst.reverb);
     app.bus = A.bus(inst.gain);
     show('player');
-    document.title = inst.name + ' — Virtual Instruments';
+    document.title = inst.name + ' — WACK MUZIC';
     document.body.classList.add('playing');
     $('#pEmoji').textContent = inst.emoji;
     $('#instSelect').value = inst.id;
@@ -345,23 +345,33 @@
     window.scrollTo(0, 0);
   }
   function route() {
-    const m = /^#\/(.+)$/.exec(location.hash);
+    const m = /^#\/([^?]+)(?:\?(.*))?$/.exec(location.hash);
     const id = m ? decodeURIComponent(m[1]) : '';
+    const params = new URLSearchParams(m && m[2] ? m[2] : '');
     if (id !== 'studio' && VMI.sui) VMI.sui.closeStudio();
     if (id === 'studio') {
-      closeInstrument(); show('studio'); document.title = 'Studio — Virtual Instruments Studio';
-      VMI.sui.openStudio();
+      closeInstrument(); show('studio'); document.title = 'Studio — WACK MUZIC';
+      VMI.sui.openStudio().then(() => { if (params.get('gen') && VMI.gen) { history.replaceState(null, '', '#/studio'); VMI.gen.dialog(); } });
     } else if (id === 'learn') {
-      closeInstrument(); show('learn'); document.title = 'Learn — Virtual Instruments Studio'; renderLearn();
+      closeInstrument(); show('learn'); document.title = 'Learn — WACK MUZIC'; renderLearn();
     } else if (id) openInstrument(id);
     else {
       closeInstrument(); show('home');
-      document.title = 'Virtual Instruments Studio — make music in your browser';
+      document.title = 'WACK MUZIC — make it loud';
     }
   }
 
   /* ---------- boot ---------- */
+  function splash() {
+    const sp = document.getElementById('splash'); if (!sp) return;
+    let seen = false; try { seen = sessionStorage.getItem('wm.splash') === '1'; sessionStorage.setItem('wm.splash', '1'); } catch (e) { /* ignore */ }
+    if (seen || matchMedia('(prefers-reduced-motion: reduce)').matches) { sp.hidden = true; return; }
+    const close = () => { if (sp.classList.contains('out')) return; sp.classList.add('out'); setTimeout(() => { sp.hidden = true; }, 460); };
+    sp.addEventListener('pointerdown', close); addEventListener('keydown', close, { once: true });
+    setTimeout(close, 2700);
+  }
   function boot() {
+    splash();
     document.body.classList.toggle('touch', app.touch);
     A.volume = store.get('vol', 0.8);
     // instrument switcher

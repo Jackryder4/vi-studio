@@ -64,16 +64,18 @@
   /* sampled voices */
   function samplerVoice(def, c, out, p) {
     const buf = lib.getBuffer(def.sample); if (!buf) return null;
-    const rate = Math.pow(2, (p.midi - (def.root == null ? 60 : def.root)) / 12);
+    const o = p.o || {}, loop = o.loop != null ? !!o.loop : !!def.loop;
+    const att = o.attack != null ? +o.attack : 0.006, relT = o.release != null ? +o.release : 0.2;
+    const rate = Math.pow(2, (p.midi - (def.root == null ? 60 : def.root) + (o.fine ? +o.fine / 100 : 0) - (def.cents || 0) / 100) / 12);
     const src = c.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate;
     const s0 = def.start || 0, s1 = def.end || buf.duration;
-    if (def.loop) { src.loop = true; src.loopStart = s0; src.loopEnd = s1; }
+    if (loop) { src.loop = true; src.loopStart = s0; src.loopEnd = s1; }
     const g = c.createGain();
     const lvl = 0.35 + 0.65 * p.vel;
-    g.gain.setValueAtTime(0, p.t); g.gain.linearRampToValueAtTime(lvl, p.t + 0.006);
+    g.gain.setValueAtTime(0, p.t); g.gain.linearRampToValueAtTime(lvl, p.t + Math.max(0.002, att));
     src.connect(g); g.connect(out);
     src.start(p.t, s0);
-    if (!def.loop) { const d = (s1 - s0) / rate; try { src.stop(p.t + d + 0.05); } catch (e) { /* ignore */ } }
+    if (!loop) { const d = (s1 - s0) / rate; try { src.stop(p.t + d + 0.05); } catch (e) { /* ignore */ } }
     let done = false;
     const end = (tau, when) => {
       if (done) return; done = true;
@@ -83,7 +85,7 @@
       try { src.stop(n + tau * 8 + 0.05); } catch (e) { /* ignore */ }
       src.onended = () => { try { g.disconnect(); } catch (e) { /* ignore */ } };
     };
-    return { release(when) { if (def.gate !== false) end(0.05, when); }, kill(when) { end(0.012, when); } };
+    return { release(when) { if (def.gate !== false || loop) end(Math.max(0.01, relT / 4), when); }, kill(when) { end(0.012, when); } };
   }
   function kitVoice(c, out, p) {
     const pad = p.pad, buf = lib.getBuffer(pad.sample); if (!buf) return null;
@@ -110,7 +112,13 @@
     }
     return {
       id: def.id, name: def.name, cat: 'mine', emoji: def.emoji || '🎙️', desc: 'Your sampled instrument', custom: true, def,
-      layout: 'keys', gain: 1, reverb: 0.2, controls: [], cfg: { skin: 'synth', start: 48, min: 24, max: 96 },
+      layout: 'keys', gain: 1, reverb: 0.2, cfg: { skin: 'synth', start: Math.max(24, Math.floor(((def.root || 60) - 12) / 12) * 12), min: 12, max: 108 },
+      controls: [
+        { id: 'attack', label: 'Attack', type: 'range', min: 0.002, max: 2, step: 0.002, value: 0.006 },
+        { id: 'release', label: 'Release', type: 'range', min: 0.02, max: 4, step: 0.02, value: def.gate === false ? 2 : 0.2 },
+        { id: 'fine', label: 'Fine tune (cents)', type: 'range', min: -100, max: 100, step: 1, value: 0 },
+        { id: 'loop', label: 'Loop while held', type: 'toggle', value: !!def.loop },
+      ],
       voice: (c, out, p) => samplerVoice(def, c, out, p),
     };
   }
@@ -210,7 +218,7 @@
     const n = project.tracks.length;
     const t = {
       id: uid('t_'), type: o.type || 'inst', inst: o.inst || null, name: o.name || (inst ? inst.name : 'Audio'), color: COLORS[n % COLORS.length],
-      vol: 0.8, pan: 0, mute: false, solo: false, rev: inst ? clamp(inst.reverb * 0.5, 0, 0.35) : 0.12, dly: 0, eq: [0, 0, 0], comp: false, drive: 0, transpose: 0, opts: {}, clips: [],
+      vol: 0.8, pan: 0, mute: false, solo: false, rev: inst ? clamp(inst.reverb * 0.5, 0, 0.35) : 0.12, dly: 0, eq: [0, 0, 0], comp: false, drive: 0, transpose: 0, opts: {}, clips: [], fx: [],
     };
     if (inst) inst.controls.forEach((c) => { t.opts[c.id] = c.value; });
     project.tracks.push(t);
@@ -302,7 +310,7 @@
     const g = ST.ensure();
     g.setMaster(project.master, project.bpm);
     const anySolo = project.tracks.some((t) => t.solo);
-    project.tracks.forEach((t) => { const s = g.strip(t.id); s.apply(t); s.setMuted(t.mute || (anySolo && !t.solo)); });
+    project.tracks.forEach((t) => { const s = g.strip(t.id); s.apply(t, project.bpm); s.setMuted(t.mute || (anySolo && !t.solo)); });
     Array.from(g.strips.keys()).forEach((id) => { if (!project.tracks.some((t) => t.id === id)) g.drop(id); });
   };
   const skip = (tr) => tr.mute || (project.tracks.some((t) => t.solo) && !tr.solo);
@@ -635,17 +643,34 @@
     if (to <= from) return null;
     const sp = spb(), sr = ST.ctx.sampleRate, dur = (to - from) * sp + 2.5;
     const off = new OfflineAudioContext(2, Math.ceil(dur * sr), sr);
+    if (VMI.FX) await VMI.FX.prepare(off, project);
     const g = new VMI.Graph(off);
     g.setMaster(project.master, project.bpm);
-    project.tracks.forEach((t) => g.strip(t.id).apply(t));
     const sk = o.only ? (tr) => tr.id !== o.only : skip;
+    // only build channels (and their effects) for tracks that actually play in this render
+    project.tracks.forEach((t) => { if (!sk(t) && t.clips.length) g.strip(t.id).apply(t, project.bpm); });
     const env = { c: off, spb: sp, live: null, choke: {}, skip: sk, timeOf: (b) => (b - from) * sp, strip: (id) => g.strips.get(id) };
     enterMid(env, from, 0);
-    scheduleRange(env, from, to);
+    // Render in chunks: pause the offline render every few seconds and only then create the notes that start next.
+    // (Creating every note of a long song up front keeps thousands of nodes alive for the whole render → very slow.)
+    const CH = 4, q = 128 / sr;
+    let schedB = from;
+    const upTo = (sec) => { const b = Math.min(to, from + sec / sp); if (b > schedB) { scheduleRange(env, schedB, b); schedB = b; } };
+    upTo(CH + 1);
+    for (let t = CH; t < dur - 0.1; t += CH) {
+      const at = Math.round(t / q) * q;
+      off.suspend(at).then(() => { upTo(at + CH + 1); off.resume(); });
+    }
     return off.startRendering();
   };
+  /** keep full mixes from clipping: scale down if the peak goes over -0.2 dB */
+  ST.safePeak = (buf) => {
+    let mx = 0; for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > mx) mx = v; } }
+    if (mx > 0.977) { const k = 0.977 / mx; for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] *= k; } }
+    return buf;
+  };
   ST.exportWav = async (loopOnly) => {
-    const buf = await ST.renderMix({ loopOnly });
+    const buf = await ST.renderMix({ loopOnly }); if (buf) ST.safePeak(buf);
     if (!buf) { ST.toast('Nothing to export yet — add some clips', 'warn'); return null; }
     return encodeWav(buf);
   };

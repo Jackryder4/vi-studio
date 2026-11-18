@@ -40,7 +40,10 @@
       this.an = c.createAnalyser(); this.an.fftSize = 512; this.buf = new Float32Array(512);
       this.input.connect(this.dry); this.dry.connect(this.sum);
       this.input.connect(this.drv); this.drv.connect(this.drvG); this.drvG.connect(this.sum);
-      let n = this.sum;
+      // insert FX slots live between drive and the channel EQ (FL-style mixer inserts)
+      this.fxIn = c.createGain(); this.fxOut = c.createGain(); this.fxMods = []; this.fxKey = '';
+      this.sum.connect(this.fxIn); this.fxIn.connect(this.fxOut);
+      let n = this.fxOut;
       [this.lo, this.mid, this.hi, this.cmp].forEach((x) => { n.connect(x); n = x; });
       if (this.pan) { n.connect(this.pan); n = this.pan; }
       n.connect(this.fader); this.fader.connect(this.mute);
@@ -49,7 +52,19 @@
       this.mute.connect(this.dlySend); this.dlySend.connect(graph.delayIn);
       this.mute.connect(this.an);
     }
-    apply(t) {
+    setFx(list, bpm) {
+      list = (list || []).filter((f) => f.on && VMI.FX && VMI.FX.types[f.type]);
+      const key = list.map((f) => f.id + f.type).join('|') + (list.some((f) => f.type === 'autotune') && VMI.FX.workletReady(this.c) ? '+w' : '');
+      if (key === this.fxKey) { list.forEach((f, i) => { try { this.fxMods[i].set(f.p, bpm); } catch (e) { /* ignore */ } }); return; }
+      this.fxMods.forEach((m) => { try { m.stop && m.stop(); m.output.disconnect(); } catch (e) { /* ignore */ } });
+      try { this.fxIn.disconnect(); } catch (e) { /* ignore */ }
+      this.fxMods = []; let n = this.fxIn;
+      list.forEach((f) => { const m = VMI.FX.build(this.c, f, bpm); n.connect(m.input); n = m.output; this.fxMods.push(m); });
+      n.connect(this.fxOut);
+      this.fxKey = key;
+    }
+    apply(t, bpm) {
+      this.setFx(t.fx, bpm || this.g.bpm || 120);
       const set = (p, v) => { p.value = v; };
       set(this.fader.gain, t.vol); if (this.pan) set(this.pan.pan, t.pan || 0);
       set(this.revSend.gain, t.rev || 0); set(this.dlySend.gain, t.dly || 0);
@@ -66,7 +81,7 @@
       let m = 0; for (let i = 0; i < this.buf.length; i++) { const v = Math.abs(this.buf[i]); if (v > m) m = v; }
       return m;
     }
-    destroy() { [this.input, this.sum, this.mute, this.fader, this.an].forEach((n) => { try { n.disconnect(); } catch (e) { /* ignore */ } }); }
+    destroy() { this.fxMods.forEach((m) => { try { m.stop && m.stop(); } catch (e) { /* ignore */ } }); [this.input, this.sum, this.mute, this.fader, this.an].forEach((n) => { try { n.disconnect(); } catch (e) { /* ignore */ } }); }
   }
 
   class Graph {
@@ -89,6 +104,7 @@
       this.strips = new Map();
     }
     setMaster(m, bpm) {
+      this.bpm = bpm;
       this.master.gain.value = m.vol;
       if (m.rev !== this.revType) { const r = REVERBS[m.rev] || REVERBS.hall; this.conv.buffer = makeIR(this.c, r[0], r[1], r[2]); this.revType = m.rev; }
       this.dly.delayTime.value = Math.min(1.99, (60 / bpm) * (DELAYS[m.dly] || 0.5));
