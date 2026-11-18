@@ -2,7 +2,18 @@
 
 A music studio and 53 playable instruments that run in the browser. Every instrument sound is synthesized with the Web Audio API, so there are no sample files and no libraries.
 
-## Run it
+**Live:** https://jackryder4.github.io/vi-studio/
+
+## Update the live site
+After changing files, bump the `?v=` numbers in `index.html` and the cache name in `sw.js`, then run:
+```
+git add -A
+git commit -m "Describe the change"
+git push
+```
+GitHub Pages republishes in about a minute.
+
+## Run it locally
 ```
 python -m http.server 8123
 ```
