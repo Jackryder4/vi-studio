@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0f12">
+<meta name="description" content="Play 50+ virtual musical instruments in your browser: piano, guitar, drums, flute, synth and more. Works with your computer keyboard and on touch screens.">
+<title>Virtual Instruments Studio</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="css/base.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/studio.css?v=8">
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<main id="home">
+  <header class="topnav">
+    <a class="brand" href="#/"><span class="bm">♪</span> Virtual Instruments Studio</a>
+    <nav><a href="#instruments" data-scroll>Instruments</a><a href="#/learn">Learn</a><a class="cta" href="#/studio">Open Studio</a></nav>
+  </header>
+  <div class="wrap">
+    <section class="hero2">
+      <div>
+        <span class="kicker">● Free · In your browser · No installs</span>
+        <h1>Make <em>real music</em> in your browser.</h1>
+        <p>A full music studio with <b id="countNum">50</b>+ playable instruments. You can sequence drums, record your voice and turn a beatbox into real drums. You can also build instruments from your own sounds, mix it all, and export a WAV.</p>
+        <div class="ctas">
+          <a class="btn accent" href="#/studio">🎛 Open the Studio</a>
+          <a class="btn" href="#instruments" data-scroll>🎹 Just play an instrument</a>
+          <a class="btn" href="#/learn">📖 Tutorials</a>
+        </div>
+      </div>
+      <div class="console" aria-hidden="true">
+        <div class="c-top"><span class="c-dot"></span><span class="c-led">012.3</span><span class="muted small">92 BPM · 4/4</span></div>
+        <div class="c-trk"><span>Drums</span><div class="c-lane"><i style="--c:#ffb02e;left:2%;width:46%"></i><i style="--c:#ffb02e;left:50%;width:46%"></i></div></div>
+        <div class="c-trk"><span>Bass</span><div class="c-lane"><i style="--c:#3dd6c6;left:2%;width:30%"></i><i style="--c:#3dd6c6;left:52%;width:30%"></i></div></div>
+        <div class="c-trk"><span>Keys</span><div class="c-lane"><i style="--c:#8f9bff;left:2%;width:94%"></i></div></div>
+        <div class="c-trk"><span>Voice</span><div class="c-lane"><i style="--c:#ff6b81;left:26%;width:40%"></i></div></div>
+        <div class="c-mix"><span style="animation-delay:-.1s"></span><span style="animation-delay:-.5s"></span><span style="animation-delay:-.3s"></span><span style="animation-delay:-.8s"></span><span style="animation-delay:-.2s"></span><span style="animation-delay:-.6s"></span><span style="animation-delay:-.4s"></span><span style="animation-delay:-.9s"></span></div>
+      </div>
+    </section>
+    <section class="feat">
+      <a href="#/studio"><span class="fi">🎚️</span><b>Multitrack studio</b><span>Timeline, piano roll, drum step grid and a mixer with EQ, drive, compression, reverb and echo.</span></a>
+      <a href="#/studio"><span class="fi">🎤</span><b>Record your voice</b><span>Sing, rap or play into the mic with a count-in and metronome. Takes are saved to your library.</span></a>
+      <a href="#/studio"><span class="fi">🗣️</span><b>Beatbox → drums</b><span>Beatbox Lab finds every hit and turns it into a real drum track, or into your own drum kit.</span></a>
+      <a href="#/learn"><span class="fi">🎓</span><b>Guided lessons</b><span>Short interactive tours: first beat, recording, beatbox, mixing and export.</span></a>
+    </section>
+
+    <div class="sec-h" id="instruments">
+      <div><h2>Instruments</h2><p>Click one to play it full-screen, or add it to a song in the Studio.</p></div>
+      <div class="searchbar"><input id="search" type="search" placeholder="Search instruments…" autocomplete="off" aria-label="Search instruments"></div>
+    </div>
+    <div id="pills" class="pills" role="tablist"></div>
+    <div id="grid" class="catalog"></div>
+
+    <div class="sec-h"><div><h2>Learn in minutes</h2><p>Each lesson opens the Studio and highlights exactly what to press.</p></div><a class="btn sm" href="#/learn">All guides →</a></div>
+    <div class="learn-teaser" id="learnTeaser"></div>
+  </div>
+  <footer class="foot">Every sound is synthesized live with the Web Audio API. Your recordings and projects stay in this browser. Best with headphones 🎧</footer>
+</main>
+
+<!-- ============ LEARN ============ -->
+<main id="learn" hidden>
+  <header class="topnav">
+    <a class="brand" href="#/"><span class="bm">♪</span> Virtual Instruments Studio</a>
+    <nav><a href="#/">Home</a><a class="cta" href="#/studio">Open Studio</a></nav>
+  </header>
+  <div class="wrap learn" id="learnBody"></div>
+</main>
+
+<!-- ============ STUDIO ============ -->
+<section id="studio" hidden></section>
+
+<!-- ============ PLAYER ============ -->
+<section id="player" class="player" hidden>
+  <div class="pbar">
+    <a class="btn icon" href="#/" id="backBtn" title="All instruments (Esc)" aria-label="All instruments">←</a>
+    <div class="ptitle">
+      <span id="pEmoji" aria-hidden="true"></span>
+      <select id="instSelect" aria-label="Choose instrument"></select>
+    </div>
+    <div class="pactions">
+      <button id="recBtn" class="btn rec" type="button" title="Record what you play"><i>●</i> <span>Rec</span></button>
+      <button id="playBtn" class="btn" type="button" title="Play back your recording" disabled><i>▶</i> <span>Play</span></button>
+      <span class="metro">
+        <button id="metBtn" class="btn" type="button" title="Metronome"><i>♩</i> <span>Metro</span></button>
+        <span class="bpmwrap"><input id="bpm" type="range" min="40" max="220" value="100" aria-label="Metronome BPM"><output id="bpmVal">100</output></span>
+      </span>
+      <button id="setBtn" class="btn" type="button" title="Settings" aria-label="Settings"><i>⚙</i></button>
+      <button id="fsBtn" class="btn" type="button" title="Fullscreen" aria-label="Fullscreen"><i>⛶</i></button>
+    </div>
+  </div>
+  <div id="settings" class="settings" hidden></div>
+  <div id="extras" class="extras" hidden></div>
+  <div id="stage" class="stage"></div>
+  <div id="hint" class="hint"></div>
+  <div id="rotate" class="rotate" hidden>↻ Rotate your phone sideways for more room</div>
+</section>
+
+<noscript><p style="padding:2rem;color:#fff">This site needs JavaScript to make sound.</p></noscript>
+
+<script src="js/audio.js?v=8"></script>
+<script src="js/voices.js?v=8"></script>
+<script src="js/instruments.js?v=8"></script>
+<script src="js/ui.js?v=8"></script>
+<script src="js/studio/store.js?v=8"></script>
+<script src="js/studio/graph.js?v=8"></script>
+<script src="js/studio/engine.js?v=8"></script>
+<script src="js/studio/studio-ui.js?v=8"></script>
+<script src="js/studio/studio-edit.js?v=8"></script>
+<script src="js/studio/lessons.js?v=8"></script>
+<script src="js/studio/pitch.js?v=8"></script>
+<script src="js/studio/voice.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
+</body>
+</html>
