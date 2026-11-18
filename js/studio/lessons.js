@@ -37,7 +37,7 @@
       id: 'record', icon: '🎹', title: 'Play & record an instrument', mins: 3, desc: 'Record what you play on the keyboard straight into a track.',
       steps: [
         { sel: '#st-browser', title: '1. Choose a sound', text: 'Add an instrument, e.g. Grand Piano or Synthesizer.', before: click('#bt-sounds') },
-        { sel: '#st-bottom', title: '2. Try it out', text: 'On a computer: Z–M is the lower octave, Q–P the upper one; S D G H J and 2 3 5 6 7 are the black keys. ↑/↓ change octave. On a phone, just tap.', before: tab('play') },
+        { sel: '#st-bottom', title: '2. Try it out', text: 'On a computer the keys run low to high in one line: Z X C V B N M , . / then Q W E R T Y U I O P [ ] (3 octaves). Black keys are the keys just above (S D G H J L ; and 2 3 4 6 7 9 0 -). ↑/↓ change octave. On a phone, just tap.', before: tab('play') },
         { sel: '#btnCount', title: '3. Count-in & metronome', text: 'Count-in gives you one bar of clicks before recording starts. Turn on Metro to hear the beat while you play.' },
         { sel: '#quantSel', title: '4. Snap', text: 'Snap tidies the timing of recorded notes (1/16 is a good default). Choose Off to keep your exact feel.' },
         { sel: '#btnRec', title: '5. Record', text: 'Press the red record button (the track with the red ● is armed). Play, then press Space or Stop. Your notes become a clip you can edit in the Editor.' },
@@ -84,7 +84,7 @@
   TOUR.shortcuts = [
     ['Space', 'Play / pause'], ['Home', 'Go to start'], ['Esc', 'Stop recording / leave studio'], ['Ctrl+Z / Ctrl+Shift+Z', 'Undo / redo'],
     ['Ctrl+D', 'Duplicate selected clip'], ['Delete', 'Delete selected note or clip'], ['Ctrl+S', 'Save project'],
-    ['Z–M, Q–P rows', 'Play the selected instrument'], ['↑ / ↓', 'Octave up / down (keyboards)'], ['Right-click', 'Delete a note in the editor'],
+    ['Z … /  then  Q … ]', 'Play the selected instrument (3 octaves, low → high)'], ['↑ / ↓', 'Octave up / down (keyboards)'], ['Right-click', 'Delete a note in the editor'],
   ];
 
   /* ---------- overlay ---------- */

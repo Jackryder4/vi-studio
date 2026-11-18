@@ -14,9 +14,18 @@
   const R_A = ['KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'Semicolon', 'Quote'];
   const R_Z = ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'];
 
-  /* piano-style computer keyboard map: [code, semitone offset] */
-  const LOWER = [['KeyZ', 0], ['KeyS', 1], ['KeyX', 2], ['KeyD', 3], ['KeyC', 4], ['KeyV', 5], ['KeyG', 6], ['KeyB', 7], ['KeyH', 8], ['KeyN', 9], ['KeyJ', 10], ['KeyM', 11], ['Comma', 12], ['KeyL', 13], ['Period', 14], ['Semicolon', 15], ['Slash', 16]];
-  const UPPER = [['KeyQ', 0], ['Digit2', 1], ['KeyW', 2], ['Digit3', 3], ['KeyE', 4], ['KeyR', 5], ['Digit5', 6], ['KeyT', 7], ['Digit6', 8], ['KeyY', 9], ['Digit7', 10], ['KeyU', 11], ['KeyI', 12], ['Digit9', 13], ['KeyO', 14], ['Digit0', 15], ['KeyP', 16], ['BracketLeft', 17], ['Equal', 18], ['BracketRight', 19]];
+  /* Continuous computer-keyboard piano: 3 octaves (37 notes) in one unbroken run, low → high.
+     Bottom rows: Z-row = white keys C..E (+1 octave), the A-row letters above them = black keys.
+     Top rows continue where the bottom stops: Q-row = white keys F..C, the number keys above = black keys.
+     Every black key sits physically between its two white keys, like a real piano. */
+  const KEYMAP = [
+    ['KeyZ', 0], ['KeyS', 1], ['KeyX', 2], ['KeyD', 3], ['KeyC', 4], ['KeyV', 5], ['KeyG', 6], ['KeyB', 7], ['KeyH', 8], ['KeyN', 9], ['KeyJ', 10], ['KeyM', 11],
+    ['Comma', 12], ['KeyL', 13], ['Period', 14], ['Semicolon', 15], ['Slash', 16],
+    ['KeyQ', 17], ['Digit2', 18], ['KeyW', 19], ['Digit3', 20], ['KeyE', 21], ['Digit4', 22], ['KeyR', 23],
+    ['KeyT', 24], ['Digit6', 25], ['KeyY', 26], ['Digit7', 27], ['KeyU', 28], ['KeyI', 29], ['Digit9', 30], ['KeyO', 31], ['Digit0', 32], ['KeyP', 33], ['Minus', 34], ['BracketLeft', 35],
+    ['BracketRight', 36],
+  ];
+  VMI.KEYMAP = KEYMAP;
 
   /* =========================================================
      Base layout: pointer + keyboard plumbing, press/lift
@@ -142,15 +151,13 @@
         this.register(String(m), k, { midi: m }, []);
         wrap.appendChild(k);
       }
-      const base = start + (want >= 22 ? 12 : 0);
-      const assign = (list, b) => list.forEach(([code, off]) => {
-        const id = String(b + off);
-        if (!this.els.has(id) || this.keymap.has(code)) return;
+      const base = start;
+      KEYMAP.forEach(([code, off]) => {
+        const id = String(base + off);
+        if (!this.els.has(id)) return;
         this.keymap.set(code, id);
-        const el = this.els.get(id);
-        if (!el.querySelector('.kl')) el.appendChild($('span', 'kl', klabel(code)));
+        this.els.get(id).appendChild($('span', 'kl', klabel(code)));
       });
-      assign(LOWER, base); assign(UPPER, base + 12);
     }
     shift(d) {
       const last = Math.max(this.cmin(), Math.floor(this.inst.cfg.max / 12) * 12 - 12);
@@ -163,7 +170,7 @@
       if (e.code === 'ArrowDown') { this.shift(-12); return true; }
       return super.keyDown(e);
     }
-    hint() { return this.app.touch ? 'Tap the keys — multi-touch works, slide a finger for glissando. Use the octave buttons in ⚙ to move up and down.' : 'Play with your keyboard: bottom rows Z–M and Q–P are two octaves (S D G H J and 2 3 5 6 7 = sharps). ↑ / ↓ shifts octave.' + (this.inst.pedal ? ' Hold Space for sustain.' : ''); }
+    hint() { return this.app.touch ? 'Tap the keys — multi-touch works, slide a finger for glissando. Use the octave buttons in ⚙ to move up and down.' : 'Computer keyboard = 3 octaves in one run, low to high: Z X C V B N M , . / then Q W E R T Y U I O P [ ] (black keys are the keys just above: S D G H J L ; and 2 3 4 6 7 9 0 -). ↑ / ↓ shifts octave.' + (this.inst.pedal ? ' Hold Space for sustain.' : ''); }
   }
   L.keys = Keys;
 
@@ -449,8 +456,8 @@
       this.setNote(m, Math.pow(clamp(1 - y, 0, 1), 1.4), x, y);
     }
     keyDown(e) {
-      const base = this.lo + 12;
-      const hit = LOWER.concat(UPPER.map(([c, o]) => [c, o + 12])).find(([c]) => c === e.code);
+      const base = this.lo;
+      const hit = KEYMAP.find(([c]) => c === e.code);
       if (!hit) return false;
       if (e.repeat) return true;
       this.app.wake(); this.begin();
@@ -467,7 +474,7 @@
     }
     releaseAll() { this.end(); this.pid = null; this.kcodes = []; }
     resize() { }
-    hint() { return this.app.touch ? 'Touch and slide: left–right changes pitch, up–down changes volume.' : 'Click and drag: left–right = pitch, up–down = volume. Or use the piano keys on your keyboard (Z–M / Q–P).'; }
+    hint() { return this.app.touch ? 'Touch and slide: left–right changes pitch, up–down changes volume.' : 'Click and drag: left–right = pitch, up–down = volume. Or play notes on your computer keyboard (Z … / then Q … ]).'; }
   }
   L.theremin = Theremin;
 })();

@@ -625,21 +625,28 @@
     for (let i = 0; i < len; i++) for (let c = 0; c < nc; c++) { const s = clamp(ch[c][i], -1, 1); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true); o += 2; }
     return new Blob([ab], { type: 'audio/wav' });
   }
-  ST.exportWav = async (loopOnly) => {
+  /** offline mixdown → AudioBuffer. o: {loopOnly, only: trackId (render one track = a stem)} */
+  ST.renderMix = async (o) => {
+    o = o || {};
     ST.ensure();
     let from = 0, to = 0;
     project.tracks.forEach((t) => t.clips.forEach((c) => { to = Math.max(to, c.start + c.len); }));
-    if (loopOnly && project.loop.on) { from = project.loop.start; to = project.loop.end; }
-    if (to <= from) { ST.toast('Nothing to export yet — add some clips', 'warn'); return null; }
+    if (o.loopOnly && project.loop.on) { from = project.loop.start; to = project.loop.end; }
+    if (to <= from) return null;
     const sp = spb(), sr = ST.ctx.sampleRate, dur = (to - from) * sp + 2.5;
     const off = new OfflineAudioContext(2, Math.ceil(dur * sr), sr);
     const g = new VMI.Graph(off);
     g.setMaster(project.master, project.bpm);
     project.tracks.forEach((t) => g.strip(t.id).apply(t));
-    const env = { c: off, spb: sp, live: null, choke: {}, skip, timeOf: (b) => (b - from) * sp, strip: (id) => g.strips.get(id) };
+    const sk = o.only ? (tr) => tr.id !== o.only : skip;
+    const env = { c: off, spb: sp, live: null, choke: {}, skip: sk, timeOf: (b) => (b - from) * sp, strip: (id) => g.strips.get(id) };
     enterMid(env, from, 0);
     scheduleRange(env, from, to);
-    const buf = await off.startRendering();
+    return off.startRendering();
+  };
+  ST.exportWav = async (loopOnly) => {
+    const buf = await ST.renderMix({ loopOnly });
+    if (!buf) { ST.toast('Nothing to export yet — add some clips', 'warn'); return null; }
     return encodeWav(buf);
   };
 

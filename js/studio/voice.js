@@ -19,7 +19,7 @@
     const c = ST.ctx;
     if (LV.node) return LV.node;
     if (!c.audioWorklet) throw new Error('Live Auto-Tune needs a modern browser on https:// or localhost');
-    await c.audioWorklet.addModule('js/studio/worklets.js?v=8');
+    await c.audioWorklet.addModule('js/studio/worklets.js?v=11');
     LV.node = new AudioWorkletNode(c, 'vmi-autotune', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
     LV.node.port.onmessage = (e) => { LV.info = e.data; };
     LV.mon = c.createGain(); LV.node.connect(LV.mon);

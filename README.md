@@ -24,6 +24,9 @@ Opening `index.html` directly works for playing, but browsers only allow the **m
 ## Install as an app
 The site is an installable web app (PWA). On a phone, open it over https and choose “Add to Home Screen”. On desktop Chrome or Edge, click “Install app” on the home page. It then opens full-screen and works offline. The same code can later be wrapped for the App Store and Google Play (for example with Capacitor).
 
+## Computer keyboard
+Notes run low to high in one line, 3 octaves: `Z X C V B N M , . /` (C3–E4), then continuing `Q W E R T Y U I O P [ ]` (F4–C6). Black keys are the keys just above their white keys: `S D  G H J  L ;` and `2 3 4  6 7  9 0 -`. Use ↑ / ↓ to shift octaves.
+
 ## Pages
 - **Home** (`#/`): the instrument gallery and links to everything else.
 - **Studio** (`#/studio`): the multitrack music studio.
@@ -42,7 +45,10 @@ The site is an installable web app (PWA). On a phone, open it over https and cho
 - **Vocoder instrument**: talk or sing into the mic while playing keys.
 - **My Library**: your recordings, imported audio and custom instruments, stored in the browser's IndexedDB.
 - Ready-made patterns (drum beats, bass lines, chord progressions, melodies) and project templates.
-- Undo/redo, autosave, named saves, and WAV export of the whole song or only the loop.
+- **Loops tab**: 40 royalty-free drum loops, melodic loops, drum hits, vocal chops and FX, rendered at the song's tempo.
+- **MIDI keyboards** (Chrome/Edge): velocity, sustain pedal, standard drum note map, and knobs for track volume, pan, reverb, echo and drive.
+- **Export**: WAV (whole song or loop), MP3 at 192 or 320 kbps, and stems (one WAV per track plus the full mix, in a ZIP). The MP3 encoder (lamejs) loads from cdnjs only when you export MP3, pinned with an integrity hash, so MP3 export needs internet.
+- Undo/redo, autosave and named saves.
 
 ## Files
 - `js/audio.js`, `js/voices.js`: the audio engine and all instrument synthesis.
@@ -58,6 +64,9 @@ The site is an installable web app (PWA). On a phone, open it over https and cho
 - `js/studio/pitch.js`: pitch detection (YIN), Auto-Tune, PSOLA pitch shifting, harmonizer, melody extraction, key detection.
 - `js/studio/worklets.js`: live Auto-Tune on the audio thread.
 - `js/studio/voice.js`: vocal chain panel, Voice Lab, vocoder.
+- `js/studio/midi.js`: MIDI keyboard input.
+- `js/studio/export.js`: MP3 export, stem export, ZIP writer.
+- `js/studio/loops.js`: the loop and sample library.
 - `manifest.webmanifest`, `sw.js`, `icons/`: installable app and offline support.
 - `css/base.css`, `css/style.css`, `css/studio.css`: design system and home page, instrument skins, studio.
 

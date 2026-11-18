@@ -12,9 +12,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="css/base.css?v=8">
-<link rel="stylesheet" href="css/style.css?v=8">
-<link rel="stylesheet" href="css/studio.css?v=8">
+<link rel="stylesheet" href="css/base.css?v=11">
+<link rel="stylesheet" href="css/style.css?v=11">
+<link rel="stylesheet" href="css/studio.css?v=11">
 </head>
 <body>
 
@@ -92,6 +92,7 @@
         <button id="metBtn" class="btn" type="button" title="Metronome"><i>♩</i> <span>Metro</span></button>
         <span class="bpmwrap"><input id="bpm" type="range" min="40" max="220" value="100" aria-label="Metronome BPM"><output id="bpmVal">100</output></span>
       </span>
+      <span id="midiSlot"></span>
       <button id="setBtn" class="btn" type="button" title="Settings" aria-label="Settings"><i>⚙</i></button>
       <button id="fsBtn" class="btn" type="button" title="Fullscreen" aria-label="Fullscreen"><i>⛶</i></button>
     </div>
@@ -103,20 +104,25 @@
   <div id="rotate" class="rotate" hidden>↻ Rotate your phone sideways for more room</div>
 </section>
 
+<div id="toasts" class="toasts"></div>
+
 <noscript><p style="padding:2rem;color:#fff">This site needs JavaScript to make sound.</p></noscript>
 
-<script src="js/audio.js?v=8"></script>
-<script src="js/voices.js?v=8"></script>
-<script src="js/instruments.js?v=8"></script>
-<script src="js/ui.js?v=8"></script>
-<script src="js/studio/store.js?v=8"></script>
-<script src="js/studio/graph.js?v=8"></script>
-<script src="js/studio/engine.js?v=8"></script>
-<script src="js/studio/studio-ui.js?v=8"></script>
-<script src="js/studio/studio-edit.js?v=8"></script>
-<script src="js/studio/lessons.js?v=8"></script>
-<script src="js/studio/pitch.js?v=8"></script>
-<script src="js/studio/voice.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/audio.js?v=11"></script>
+<script src="js/voices.js?v=11"></script>
+<script src="js/instruments.js?v=11"></script>
+<script src="js/ui.js?v=11"></script>
+<script src="js/studio/store.js?v=11"></script>
+<script src="js/studio/graph.js?v=11"></script>
+<script src="js/studio/engine.js?v=11"></script>
+<script src="js/studio/studio-ui.js?v=11"></script>
+<script src="js/studio/studio-edit.js?v=11"></script>
+<script src="js/studio/lessons.js?v=11"></script>
+<script src="js/studio/pitch.js?v=11"></script>
+<script src="js/studio/voice.js?v=11"></script>
+<script src="js/studio/midi.js?v=11"></script>
+<script src="js/studio/export.js?v=11"></script>
+<script src="js/studio/loops.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>

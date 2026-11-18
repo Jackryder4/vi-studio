@@ -330,7 +330,7 @@
         h('button', { class: 'btn accent sm', onclick: () => T.start(l.id) }, '▶ Start interactive lesson')))),
       h('div', { class: 'sec-h' }, h('div', null, h('h2', null, 'Playing single instruments'), h('p', null, 'Every instrument also has its own full-screen page (Home → Instruments).'))),
       h('div', { class: 'tips' },
-        h('div', null, '🎹 Keyboards: bottom row Z–M is one octave, Q–P the next. S D G H J and 2 3 5 6 7 are the black keys. ↑ / ↓ shift octaves. Hold Space for the sustain pedal.'),
+        h('div', null, '🎹 Keyboards: your computer keyboard is 3 octaves in one unbroken run, low to high. Z X C V B N M , . / then carry on with Q W E R T Y U I O P [ ]. The black keys are the keys just above (S D, G H J, L ; and 2 3 4, 6 7, 9 0 -). ↑ / ↓ shift octaves. Hold Space for the sustain pedal.'),
         h('div', null, '🎸 Guitars and banjo: A S D F G H J K L ; strum chords (hold Shift for an upstroke). 1–6 pick single strings. Bass, ukulele, violin and cello use one key row per string.'),
         h('div', null, '🥁 Drums and percussion: the key for each pad is printed on it. Space is the kick drum.'),
         h('div', null, '📱 Phones and tablets: tap with several fingers at once and slide for glissandos. Turn the phone sideways for more keys.')),
@@ -385,6 +385,7 @@
     }));
     VMI.st.on('instruments', () => { fillSelect(); home.render(); });
     sel.addEventListener('change', () => { location.hash = '#/' + sel.value; sel.blur(); });
+    $('#midiSlot').replaceWith(VMI.midi.button(''));
     $('#recBtn').addEventListener('click', () => rec.toggle());
     $('#playBtn').addEventListener('click', () => rec.play());
     $('#metBtn').addEventListener('click', () => { app.wake(); met.toggle(); });

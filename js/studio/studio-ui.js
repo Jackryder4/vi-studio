@@ -108,7 +108,7 @@
      ========================================================= */
   U.build = () => {
     const root = $('#studio'); root.innerHTML = '';
-    root.append(buildTop(), h('div', { class: 'st-main' }, buildBrowser(), buildArr()), buildBottom(), h('div', { id: 'toasts', class: 'toasts' }));
+    root.append(buildTop(), h('div', { class: 'st-main' }, buildBrowser(), buildArr()), buildBottom());
     U.renderBrowser(); U.renderArr(); U.renderBottom(); U.updateTransport();
   };
 
@@ -146,6 +146,7 @@
       h('div', { class: 'tgroup' },
         h('button', { class: 'btn tbtn', title: 'Undo (Ctrl+Z)', onclick: () => ST.undo() }, '↶'),
         h('button', { class: 'btn tbtn', title: 'Redo (Ctrl+Shift+Z)', onclick: () => ST.redo() }, '↷'),
+        VMI.midi.button('tbtn'),
         h('button', { id: 'btnHelp', class: 'btn tbtn accent', title: 'Tutorials', onclick: () => VMI.tour.menu() }, '? Learn')));
   }
   function fileMenu(anchor) {
@@ -156,6 +157,9 @@
       '-',
       { label: 'Export mixdown (WAV)', fn: () => exportWav(false) },
       { label: 'Export loop range (WAV)', fn: () => exportWav(true) },
+      { label: 'Export MP3 — 192 kbps (for sharing)', fn: () => VMI.exp.mp3(192).catch((e) => U.toast('MP3 export failed: ' + e.message, 'warn')) },
+      { label: 'Export MP3 — 320 kbps (best quality)', fn: () => VMI.exp.mp3(320).catch((e) => U.toast('MP3 export failed: ' + e.message, 'warn')) },
+      { label: 'Export stems (each track as WAV, in a ZIP)', fn: () => VMI.exp.stems().catch((e) => U.toast('Stem export failed: ' + e.message, 'warn')) },
     ]);
   }
   function newDialog() {
@@ -196,7 +200,7 @@
      ========================================================= */
   let bTab = 'sounds', soundQ = '';
   function buildBrowser() {
-    const tabs = ['sounds', 'library', 'patterns'].map((t) => h('button', { class: 'bt', 'data-t': t, id: 'bt-' + t, onclick: () => { bTab = t; U.renderBrowser(); } }, { sounds: 'Sounds', library: 'My Library', patterns: 'Patterns' }[t]));
+    const tabs = ['sounds', 'loops', 'library', 'patterns'].map((t) => h('button', { class: 'bt', 'data-t': t, id: 'bt-' + t, onclick: () => { bTab = t; U.renderBrowser(); } }, { sounds: 'Sounds', loops: 'Loops', library: 'Library', patterns: 'Patterns' }[t]));
     return h('aside', { class: 'st-browser', id: 'st-browser' },
       h('div', { class: 'bt-tabs' }, tabs, h('button', { class: 'btn icon sm only-narrow', onclick: () => $('.st-browser').classList.remove('open') }, '✕')),
       h('div', { class: 'bt-body', id: 'btBody' }));
@@ -205,7 +209,7 @@
     $$('.bt').forEach((b) => b.classList.toggle('active', b.dataset.t === bTab));
     const body = $('#btBody'); if (!body) return;
     const keep = body.scrollTop; body.innerHTML = '';
-    if (bTab === 'sounds') renderSounds(body); else if (bTab === 'library') renderLibrary(body); else renderPatterns(body);
+    if (bTab === 'sounds') renderSounds(body); else if (bTab === 'loops') renderLoops(body); else if (bTab === 'library') renderLibrary(body); else renderPatterns(body);
     body.scrollTop = keep;
   };
   ST.on('lib', () => { if (U.open && bTab === 'library') U.renderBrowser(); });
@@ -285,6 +289,26 @@
         h('button', { class: 'btn sm danger', onclick: () => { if (confirm('Delete instrument “' + d.name + '”?')) ST.removeInstrument(d.id); } }, '🗑'))));
     }
   }
+  let loopQ = '';
+  function renderLoops(body) {
+    const LP = VMI.loops;
+    const q = h('input', { class: 'search', type: 'search', placeholder: 'Search loops & sounds…', value: loopQ, oninput: (e) => { loopQ = e.target.value.toLowerCase(); fill(); } });
+    const list = h('div', { class: 'snd-list' });
+    const fill = () => {
+      list.innerHTML = '';
+      LP.cats.forEach((cat) => {
+        const items = LP.items.filter((it) => it.cat === cat && (!loopQ || (it.name + ' ' + cat).toLowerCase().includes(loopQ)));
+        if (!items.length) return;
+        list.append(h('div', { class: 'snd-cat', style: '--c:#3dd6c6' }, cat));
+        items.forEach((it) => list.append(h('div', { class: 'loop-item', draggable: true, title: 'Drag onto the timeline, or press +', ondragstart: (e) => { e.dataTransfer.setData('text/plain', 'vmi-pack:' + it.id); e.dataTransfer.effectAllowed = 'copy'; } },
+          h('button', { class: 'btn xs icon', title: 'Preview (click again to stop)', onclick: () => LP.preview(it.id) }, '▶'),
+          h('span', { class: 'sn' }, it.name, h('small', null, LP.lenLabel(it))),
+          h('button', { class: 'btn xs icon add', title: 'Add to the song at the playhead', onclick: () => LP.add(it.id) }, '+'))));
+      });
+    };
+    fill();
+    body.append(h('p', { class: 'muted small' }, 'Royalty-free loops and sounds made by the studio’s own engine. Loops are rendered at your song’s tempo (' + ST.proj().bpm + ' BPM), so they always fit.'), q, list);
+  }
   function renderPatterns(body) {
     body.append(h('p', { class: 'muted small' }, 'Select a track, move the playhead, then insert a ready-made pattern. Drum patterns need a drum track.'));
     const kinds = { drums: '🥁', bass: '🎸', chords: '🎹', melody: '🎵' };
@@ -359,7 +383,7 @@
       h('div', { class: 'ah' },
         h('button', { class: 'btn sm', id: 'add-track', onclick: () => { bTab = 'sounds'; U.renderBrowser(); $('.st-browser').classList.add('open'); $('.search') && $('.search').focus(); } }, '+ Instrument track'),
         h('button', { class: 'btn sm', id: 'add-audio', onclick: () => { ST.snap(); const t = ST.addTrack({ type: 'audio', name: 'Voice' }); ST.touch(); ST.emit('selection'); U.toast('Audio track added — arm it and press ● to record your mic'); } }, '+ Audio / voice track')),
-      h('div', { class: 'alane drop', style: 'width:' + W + 'px', ondragover: (e) => e.preventDefault(), ondrop: (e) => { const d = e.dataTransfer.getData('text/plain'); if (d.startsWith('vmi-sample:')) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); addSampleTrack(d.slice(11), Math.max(0, Math.round((e.clientX - r.left) / ppb))); } } }, 'Drop a sound here to make a new audio track')));
+      h('div', { class: 'alane drop', style: 'width:' + W + 'px', ondragover: (e) => e.preventDefault(), ondrop: (e) => { const d = e.dataTransfer.getData('text/plain'); if (d.startsWith('vmi-pack:')) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); VMI.loops.add(d.slice(9), Math.max(0, Math.round((e.clientX - r.left) / ppb))); return; } if (d.startsWith('vmi-sample:')) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); addSampleTrack(d.slice(11), Math.max(0, Math.round((e.clientX - r.left) / ppb))); } } }, 'Drop a loop or sound here to make a new audio track')));
     arrInner.append(h('div', { class: 'playhead', id: 'playhead' }));
     arrScroll.scrollLeft = sl; arrScroll.scrollTop = st;
     U.markSelection();
@@ -396,7 +420,9 @@
       onpointerdown: (e) => { if (e.target === e.currentTarget) { ST.selTrack = t.id; if (ST.canRecord(t)) ST.armed = t.id; ST.selClip = null; ST.emit('selection'); } },
       ondragover: (e) => { if (t.type === 'audio') e.preventDefault(); },
       ondrop: (e) => {
-        const d = e.dataTransfer.getData('text/plain'); if (t.type !== 'audio' || !d.startsWith('vmi-sample:')) return; e.preventDefault();
+        const d = e.dataTransfer.getData('text/plain');
+        if (t.type === 'audio' && d.startsWith('vmi-pack:')) { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); VMI.loops.add(d.slice(9), Math.max(0, Math.round((e.clientX - r.left) / U.ppb)), t); return; }
+        if (t.type !== 'audio' || !d.startsWith('vmi-sample:')) return; e.preventDefault();
         const s = ST.lib.samples.get(d.slice(11)); if (!s) return; const r = e.currentTarget.getBoundingClientRect();
         const b = Math.max(0, Math.round((e.clientX - r.left) / U.ppb)), len = s.dur / ST.spb();
         ST.snap(); ST.ensureBars(b + len); const c = ST.addClip(t, b, len, []); c.sample = s.id; c.off = 0; c.gain = 1; c.name = s.name; ST.selClip = c.id; ST.touch(); ST.emit('selection');

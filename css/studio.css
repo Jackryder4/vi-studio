@@ -224,3 +224,13 @@
 .pgraph { width: 100%; border-radius: 10px; border: 1px solid #23272f; display: block; }
 .lab-actions.four { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 900px) { .vocal { grid-template-columns: 1fr; } .lab-actions.four { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- loops tab + MIDI ---------- */
+.loop-item { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 6px; border-radius: 7px; cursor: grab; }
+.loop-item:hover { background: #ffffff0d; }
+.loop-item .sn { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 1.25; }
+.loop-item .sn small { color: var(--muted); font-size: 11px; }
+.loop-item .add { color: var(--accent); font-weight: 800; }
+.bt { font-size: 12.5px; }
+.midi-btn.hit { box-shadow: 0 0 0 2px var(--accent2); }
+.midi-btn.active { border-color: var(--accent2); color: #b8fff6; background: #0f2f2b; }
